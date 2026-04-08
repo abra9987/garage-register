@@ -66,7 +66,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Audit Trail
 
-- [ ] **AUDT-01**: System logs every state change: upload, extraction, field edits (old→new value), approval, export
+- [ ] **AUDT-01**: System logs every state change: upload, extraction, field edits (old->new value), approval, export
 - [ ] **AUDT-02**: Each log entry has timestamp and user identifier
 - [ ] **AUDT-03**: Audit log is immutable (append-only)
 
@@ -75,7 +75,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **UIUX-01**: Application is mobile-responsive (dashboard and search work on phone, review is desktop-preferred)
 - [ ] **UIUX-02**: Application supports light and dark theme via prefers-color-scheme
 - [ ] **UIUX-03**: UI uses large buttons, visual cues, and minimal actions for non-technical user
-- [ ] **UIUX-04**: No backend errors shown to user — system retries silently, user always sees success or clear guidance
+- [ ] **UIUX-04**: No backend errors shown to user -- system retries silently, user always sees success or clear guidance
 
 ## v2 Requirements
 
@@ -83,11 +83,11 @@ Deferred to future release. Tracked but not in current roadmap.
 
 ### Enhancements
 
-- **ENHN-01**: VIN enrichment via NHTSA vPIC API — auto-fill/verify year, make, model from VIN decode
-- **ENHN-02**: Audit trail UI browser — view full change history for any record
+- **ENHN-01**: VIN enrichment via NHTSA vPIC API -- auto-fill/verify year, make, model from VIN decode
+- **ENHN-02**: Audit trail UI browser -- view full change history for any record
 - **ENHN-03**: First-run onboarding guided tour with tooltips
-- **ENHN-04**: Duplicate VIN detection — flag if VIN already registered
-- **ENHN-05**: Bulk status actions — select multiple records to export together
+- **ENHN-04**: Duplicate VIN detection -- flag if VIN already registered
+- **ENHN-05**: Bulk status actions -- select multiple records to export together
 - **ENHN-06**: Multi-user with role-based access control UI (admin/operator)
 - **ENHN-07**: Export history with re-download of past XLSX files
 - **ENHN-08**: Document type classification display
@@ -112,13 +112,52 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| — | — | — |
+| AUTH-01 | Phase 1 | Pending |
+| AUTH-02 | Phase 1 | Pending |
+| AUTH-03 | Phase 1 | Pending |
+| AUTH-04 | Phase 1 | Pending |
+| AUDT-01 | Phase 1 | Pending |
+| AUDT-02 | Phase 1 | Pending |
+| AUDT-03 | Phase 1 | Pending |
+| UIUX-02 | Phase 1 | Pending |
+| UIUX-04 | Phase 1 | Pending |
+| UPLD-01 | Phase 2 | Pending |
+| UPLD-02 | Phase 2 | Pending |
+| UPLD-03 | Phase 2 | Pending |
+| UPLD-04 | Phase 2 | Pending |
+| EXTR-01 | Phase 2 | Pending |
+| EXTR-02 | Phase 2 | Pending |
+| EXTR-03 | Phase 2 | Pending |
+| EXTR-04 | Phase 2 | Pending |
+| EXTR-05 | Phase 2 | Pending |
+| EXTR-06 | Phase 2 | Pending |
+| VIN-01 | Phase 2 | Pending |
+| VIN-02 | Phase 2 | Pending |
+| VIN-03 | Phase 2 | Pending |
+| REVW-01 | Phase 3 | Pending |
+| REVW-02 | Phase 3 | Pending |
+| REVW-03 | Phase 3 | Pending |
+| REVW-04 | Phase 3 | Pending |
+| REVW-05 | Phase 3 | Pending |
+| UIUX-03 | Phase 3 | Pending |
+| XPRT-01 | Phase 4 | Pending |
+| XPRT-02 | Phase 4 | Pending |
+| XPRT-03 | Phase 4 | Pending |
+| XPRT-04 | Phase 4 | Pending |
+| XPRT-05 | Phase 4 | Pending |
+| REGS-01 | Phase 4 | Pending |
+| REGS-02 | Phase 4 | Pending |
+| REGS-03 | Phase 4 | Pending |
+| DASH-01 | Phase 4 | Pending |
+| DASH-02 | Phase 4 | Pending |
+| DASH-03 | Phase 4 | Pending |
+| UIUX-01 | Phase 4 | Pending |
 
 **Coverage:**
-- v1 requirements: 35 total
-- Mapped to phases: 0
-- Unmapped: 35
+- v1 requirements: 40 total
+- Mapped to phases: 40
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-08*
-*Last updated: 2026-04-08 after initial definition*
+*Last updated: 2026-04-08 after roadmap creation*
