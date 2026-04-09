@@ -10,7 +10,23 @@ import {
   date,
   jsonb,
   boolean,
+  customType,
 } from "drizzle-orm/pg-core";
+
+// Custom bytea type for binary data (PDF storage)
+const bytea = customType<{ data: Buffer }>({
+  dataType() {
+    return "bytea";
+  },
+  toDriver(value: Buffer): Buffer {
+    return value;
+  },
+  fromDriver(value: unknown): Buffer {
+    if (Buffer.isBuffer(value)) return value;
+    if (typeof value === "string") return Buffer.from(value, "hex");
+    return Buffer.from(value as ArrayBuffer);
+  },
+});
 
 // ---- Better Auth tables (manually defined with admin plugin fields) ----
 
@@ -108,6 +124,7 @@ export const vehicles = pgTable("vehicles", {
   purchasePrice: numeric("purchase_price", { precision: 10, scale: 2 }),
   salePrice: numeric("sale_price", { precision: 10, scale: 2 }),
   stockNumber: varchar("stock_number", { length: 50 }),
+  extractionConfidence: jsonb("extraction_confidence"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
@@ -126,7 +143,8 @@ export const documents = pgTable("documents", {
     .notNull(),
   type: documentTypeEnum("type").notNull(),
   filename: varchar("filename", { length: 255 }).notNull(),
-  filePath: varchar("file_path", { length: 500 }).notNull(),
+  fileData: bytea("file_data").notNull(),
+  mimeType: varchar("mime_type", { length: 100 }),
   fileSize: integer("file_size").notNull(),
   uploadedAt: timestamp("uploaded_at", { withTimezone: true })
     .defaultNow()
