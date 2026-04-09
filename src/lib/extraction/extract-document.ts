@@ -1,4 +1,4 @@
-import { anthropic } from "./claude-client";
+import { getAnthropicClient } from "./claude-client";
 import {
   EXTRACTION_SYSTEM_PROMPT,
   EXTRACTION_JSON_SCHEMA,
@@ -87,7 +87,7 @@ export async function extractDocument(
         await sleep(delay);
       }
 
-      const response = await anthropic.messages.create({
+      const response = await getAnthropicClient().messages.create({
         model: EXTRACTION_MODEL,
         max_tokens: MAX_TOKENS,
         system: EXTRACTION_SYSTEM_PROMPT,
