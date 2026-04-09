@@ -13,9 +13,11 @@ This roadmap follows the natural data pipeline of the Garage Register: foundatio
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation + Auth** - Project skeleton, database schema, authentication, audit trail infrastructure, and baseline UI setup (completed 2026-04-09)
-- [ ] **Phase 2: Upload + Extraction Pipeline** - PDF upload, Claude API vision extraction, VIN validation, confidence scoring, and AP/AR paired processing
-- [ ] **Phase 3: Review + Approval** - Side-by-side PDF review with confidence highlighting, field editing, and approval workflow
-- [ ] **Phase 4: Export + Register + Dashboard** - XLSX export (new and append), vehicle register with search/filter, dashboard, and mobile responsive layout
+- [x] **Phase 2: Upload + Extraction Pipeline** - PDF upload, Claude API vision extraction, VIN validation, confidence scoring, and AP/AR paired processing
+- [x] **Phase 3: Review + Approval** - Side-by-side PDF review with confidence highlighting, field editing, and approval workflow
+- [x] **Phase 4: Export + Register + Dashboard** - XLSX export (new and append), vehicle register with search/filter, dashboard, and mobile responsive layout
+- [ ] **Phase 5: PDF Preview on Upload** - Visual preview of uploaded AP/AR PDFs before extraction, with file removal option
+- [ ] **Phase 6: Delete Vehicle from UI** - Delete button in vehicle list/review with confirmation dialog, using existing DELETE endpoint
 
 ## Phase Details
 
@@ -96,5 +98,36 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 |-------|----------------|--------|-----------|
 | 1. Foundation + Auth | 2/2 | Complete    | 2026-04-09 |
 | 2. Upload + Extraction Pipeline | 3/3 | Complete | 2026-04-09 |
-| 3. Review + Approval | 0/2 | Not started | - |
-| 4. Export + Register + Dashboard | 0/3 | Not started | - |
+| 3. Review + Approval | 2/2 | Complete | 2026-04-09 |
+| 4. Export + Register + Dashboard | 3/3 | Complete | 2026-04-09 |
+| 5. PDF Preview on Upload | 0/0 | Not started | - |
+| 6. Delete Vehicle from UI | 0/0 | Not started | - |
+
+### Phase 5: PDF Preview on Upload
+**Goal**: Andrey can see a visual preview of uploaded AP/AR PDF files before submitting for extraction, confirming correct documents were selected
+**Depends on**: Phase 2
+**Requirements**: UPLD-05
+**Success Criteria** (what must be TRUE):
+  1. User sees PDF thumbnail/preview after selecting files in Upload New Vehicle page
+  2. User can remove a wrongly selected file before submitting
+  3. Preview works for both single-page and multi-page PDFs
+**Plans**: 0 plans
+**UI hint**: yes
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 5 to break down)
+
+### Phase 6: Delete Vehicle from UI
+**Goal**: Andrey can delete erroneous or test vehicle records directly from the UI with a confirmation dialog, preventing accidental deletions
+**Depends on**: Phase 4
+**Requirements**: REGS-04
+**Success Criteria** (what must be TRUE):
+  1. User sees a delete button on vehicle records in register/review views
+  2. Clicking delete shows a confirmation dialog before proceeding
+  3. Confirmed deletion removes the vehicle record and its associated documents
+  4. Deleted vehicles no longer appear in register, dashboard, or export
+**Plans**: 0 plans
+**UI hint**: yes
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 6 to break down)
