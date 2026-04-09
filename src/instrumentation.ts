@@ -30,7 +30,12 @@ export async function register() {
       const existing = await db.select({ id: user.id }).from(user).where(eq(user.email, email));
 
       if (existing.length > 0) {
-        console.log(`[seed] Admin user ${email} already exists, skipping`);
+        // Update password hash on every restart (handles env var changes)
+        const hashedPw = await hashPassword(password);
+        const { and } = await import("drizzle-orm");
+        await db.update(account).set({ password: hashedPw, updatedAt: new Date() })
+          .where(and(eq(account.userId, existing[0].id), eq(account.providerId, "credential")));
+        console.log(`[seed] Admin user ${email} exists, password hash updated`);
         return;
       }
 
