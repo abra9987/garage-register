@@ -115,7 +115,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 **UI hint**: yes
 
 Plans:
-- [ ] 05-01-PLAN.md -- UploadPdfPreview component + DropZone integration with inline first-page preview, page count badge, and error fallback
+- [x] 05-01-PLAN.md -- UploadPdfPreview component + DropZone integration with inline first-page preview, page count badge, and error fallback
 
 ### Phase 6: Delete Vehicle from UI
 **Goal**: Andrey can delete erroneous or test vehicle records directly from the UI with a confirmation dialog, preventing accidental deletions
