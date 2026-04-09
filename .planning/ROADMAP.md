@@ -100,7 +100,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | 2. Upload + Extraction Pipeline | 3/3 | Complete | 2026-04-09 |
 | 3. Review + Approval | 2/2 | Complete | 2026-04-09 |
 | 4. Export + Register + Dashboard | 3/3 | Complete | 2026-04-09 |
-| 5. PDF Preview on Upload | 0/0 | Not started | - |
+| 5. PDF Preview on Upload | 0/1 | Not started | - |
 | 6. Delete Vehicle from UI | 0/0 | Not started | - |
 
 ### Phase 5: PDF Preview on Upload
@@ -111,11 +111,11 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
   1. User sees PDF thumbnail/preview after selecting files in Upload New Vehicle page
   2. User can remove a wrongly selected file before submitting
   3. Preview works for both single-page and multi-page PDFs
-**Plans**: 0 plans
+**Plans**: 1 plan
 **UI hint**: yes
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 5 to break down)
+- [ ] 05-01-PLAN.md -- UploadPdfPreview component + DropZone integration with inline first-page preview, page count badge, and error fallback
 
 ### Phase 6: Delete Vehicle from UI
 **Goal**: Andrey can delete erroneous or test vehicle records directly from the UI with a confirmation dialog, preventing accidental deletions
