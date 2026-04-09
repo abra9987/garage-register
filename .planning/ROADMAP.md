@@ -45,8 +45,13 @@ Plans:
   3. System extracts all ministry register fields from any of the 6 document types including scanned PDFs
   4. Each extracted field shows a confidence level (high/medium/low) and VIN is validated with check digit verification
   5. When both AP and AR are provided, system flags inconsistencies between shared fields (VIN mismatch, vehicle detail conflicts)
-**Plans**: TBD
+**Plans**: 3 plans
 **UI hint**: yes
+
+Plans:
+- [ ] 02-01-PLAN.md -- Schema migration (bytea + confidence), extraction types, VIN validation
+- [ ] 02-02-PLAN.md -- Claude API extraction engine (client, prompt, core logic, cross-validation)
+- [ ] 02-03-PLAN.md -- Upload page UI, API routes, full pipeline wiring with status polling
 
 ### Phase 3: Review + Approval
 **Goal**: Andrey can review extracted data against the original PDF, correct any errors, and approve records for export
@@ -81,6 +86,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation + Auth | 2/2 | Complete    | 2026-04-09 |
-| 2. Upload + Extraction Pipeline | 0/TBD | Not started | - |
+| 2. Upload + Extraction Pipeline | 0/3 | Not started | - |
 | 3. Review + Approval | 0/TBD | Not started | - |
 | 4. Export + Register + Dashboard | 0/TBD | Not started | - |
