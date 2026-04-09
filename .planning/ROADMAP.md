@@ -29,7 +29,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Application renders with light/dark theme based on system preference
   4. Backend errors are caught and user sees friendly guidance instead of stack traces
   5. Audit log table exists and records state changes with timestamps and user ID (verified via direct DB query)
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 01-01-PLAN.md -- Scaffold Next.js project, Drizzle schema, Better Auth config, database push
+- [ ] 01-02-PLAN.md -- Login UI, sidebar navigation, dark mode, error boundaries, audit utility
 
 ### Phase 2: Upload + Extraction Pipeline
 **Goal**: Andrey can upload AP and AR PDFs for a vehicle deal and receive structured extracted data with confidence scores and VIN validation
@@ -76,7 +80,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation + Auth | 0/TBD | Not started | - |
+| 1. Foundation + Auth | 0/2 | Planning complete | - |
 | 2. Upload + Extraction Pipeline | 0/TBD | Not started | - |
 | 3. Review + Approval | 0/TBD | Not started | - |
 | 4. Export + Register + Dashboard | 0/TBD | Not started | - |
