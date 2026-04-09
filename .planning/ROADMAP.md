@@ -84,7 +84,7 @@ Plans:
 
 Plans:
 - [x] 04-01-PLAN.md -- XLSX export engine (generateNew + appendToExisting) and export API routes
-- [ ] 04-02-PLAN.md -- Dashboard (stat cards, activity feed, quick actions) + Register (sortable table, search, filters, pagination) with API routes
+- [x] 04-02-PLAN.md -- Dashboard (stat cards, activity feed, quick actions) + Register (sortable table, search, filters, pagination) with API routes
 - [ ] 04-03-PLAN.md -- Export page UI (tabs, record selection, download trigger, append upload) + end-to-end verification
 
 ## Progress

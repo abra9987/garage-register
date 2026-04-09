@@ -54,15 +54,15 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Register & Search
 
-- [ ] **REGS-01**: User can view all processed vehicle records in a table with sortable columns
-- [ ] **REGS-02**: User can search records by VIN, job number, make, model, seller, or buyer
-- [ ] **REGS-03**: User can filter records by status (pending review, approved, exported) and date range
+- [x] **REGS-01**: User can view all processed vehicle records in a table with sortable columns
+- [x] **REGS-02**: User can search records by VIN, job number, make, model, seller, or buyer
+- [x] **REGS-03**: User can filter records by status (pending review, approved, exported) and date range
 
 ### Dashboard
 
-- [ ] **DASH-01**: User sees count of records pending review on the home screen
-- [ ] **DASH-02**: User sees count of records exported this month
-- [ ] **DASH-03**: User sees recent activity feed (uploads, approvals, exports)
+- [x] **DASH-01**: User sees count of records pending review on the home screen
+- [x] **DASH-02**: User sees count of records exported this month
+- [x] **DASH-03**: User sees recent activity feed (uploads, approvals, exports)
 
 ### Audit Trail
 
@@ -72,7 +72,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### UI/UX
 
-- [ ] **UIUX-01**: Application is mobile-responsive (dashboard and search work on phone, review is desktop-preferred)
+- [x] **UIUX-01**: Application is mobile-responsive (dashboard and search work on phone, review is desktop-preferred)
 - [x] **UIUX-02**: Application supports light and dark theme via prefers-color-scheme
 - [x] **UIUX-03**: UI uses large buttons, visual cues, and minimal actions for non-technical user
 - [x] **UIUX-04**: No backend errors shown to user -- system retries silently, user always sees success or clear guidance
@@ -145,13 +145,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | XPRT-03 | Phase 4 | Complete |
 | XPRT-04 | Phase 4 | Pending |
 | XPRT-05 | Phase 4 | Complete |
-| REGS-01 | Phase 4 | Pending |
-| REGS-02 | Phase 4 | Pending |
-| REGS-03 | Phase 4 | Pending |
-| DASH-01 | Phase 4 | Pending |
-| DASH-02 | Phase 4 | Pending |
-| DASH-03 | Phase 4 | Pending |
-| UIUX-01 | Phase 4 | Pending |
+| REGS-01 | Phase 4 | Complete |
+| REGS-02 | Phase 4 | Complete |
+| REGS-03 | Phase 4 | Complete |
+| DASH-01 | Phase 4 | Complete |
+| DASH-02 | Phase 4 | Complete |
+| DASH-03 | Phase 4 | Complete |
+| UIUX-01 | Phase 4 | Complete |
 
 **Coverage:**
 - v1 requirements: 40 total
