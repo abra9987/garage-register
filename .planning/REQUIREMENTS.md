@@ -73,9 +73,9 @@ Requirements for initial release. Each maps to roadmap phases.
 ### UI/UX
 
 - [ ] **UIUX-01**: Application is mobile-responsive (dashboard and search work on phone, review is desktop-preferred)
-- [ ] **UIUX-02**: Application supports light and dark theme via prefers-color-scheme
+- [x] **UIUX-02**: Application supports light and dark theme via prefers-color-scheme
 - [ ] **UIUX-03**: UI uses large buttons, visual cues, and minimal actions for non-technical user
-- [ ] **UIUX-04**: No backend errors shown to user -- system retries silently, user always sees success or clear guidance
+- [x] **UIUX-04**: No backend errors shown to user -- system retries silently, user always sees success or clear guidance
 
 ## v2 Requirements
 
@@ -119,8 +119,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUDT-01 | Phase 1 | Complete |
 | AUDT-02 | Phase 1 | Complete |
 | AUDT-03 | Phase 1 | Complete |
-| UIUX-02 | Phase 1 | Pending |
-| UIUX-04 | Phase 1 | Pending |
+| UIUX-02 | Phase 1 | Complete |
+| UIUX-04 | Phase 1 | Complete |
 | UPLD-01 | Phase 2 | Pending |
 | UPLD-02 | Phase 2 | Pending |
 | UPLD-03 | Phase 2 | Pending |

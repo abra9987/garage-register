@@ -33,7 +33,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 Plans:
 - [x] 01-01-PLAN.md -- Scaffold Next.js project, Drizzle schema, Better Auth config, database push
-- [ ] 01-02-PLAN.md -- Login UI, sidebar navigation, dark mode, error boundaries, audit utility
+- [x] 01-02-PLAN.md -- Login UI, sidebar navigation, dark mode, error boundaries, audit utility
 
 ### Phase 2: Upload + Extraction Pipeline
 **Goal**: Andrey can upload AP and AR PDFs for a vehicle deal and receive structured extracted data with confidence scores and VIN validation
