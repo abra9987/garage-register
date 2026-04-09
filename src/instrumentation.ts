@@ -1,10 +1,11 @@
 export async function register() {
   // Only run on server (not during build or edge)
   if (process.env.NEXT_RUNTIME === "nodejs") {
-    const { auth } = await import("@/lib/auth");
     const { db } = await import("@/lib/db");
-    const { user } = await import("@/lib/db/schema");
-    const { count, eq } = await import("drizzle-orm");
+    const { user, account } = await import("@/lib/db/schema");
+    const { count } = await import("drizzle-orm");
+    const { hashPassword } = await import("better-auth/crypto");
+    const crypto = await import("crypto");
 
     try {
       const [result] = await db.select({ count: count() }).from(user);
@@ -20,16 +21,33 @@ export async function register() {
           return;
         }
 
-        // Create user via Better Auth API (works without existing session)
-        await auth.api.signUpEmail({
-          body: { email, password, name: "Admin" },
+        const now = new Date();
+        const userId = crypto.randomUUID();
+
+        // Hash password using Better Auth's own hashing (scrypt)
+        const hashedPassword = await hashPassword(password);
+
+        // Insert user directly via Drizzle (bypasses disableSignUp restriction)
+        await db.insert(user).values({
+          id: userId,
+          name: "Admin",
+          email,
+          emailVerified: false,
+          createdAt: now,
+          updatedAt: now,
+          role: "admin",
         });
 
-        // Set role to admin (admin plugin adds the role column)
-        await db
-          .update(user)
-          .set({ role: "admin" })
-          .where(eq(user.email, email));
+        // Insert credential account (Better Auth stores password in account table)
+        await db.insert(account).values({
+          id: crypto.randomUUID(),
+          accountId: userId,
+          providerId: "credential",
+          userId,
+          password: hashedPassword,
+          createdAt: now,
+          updatedAt: now,
+        });
 
         console.log(`[seed] Admin user created: ${email}`);
       }
