@@ -47,15 +47,17 @@ Exceptions: Drop zones use min-height of 200px (not a spacing token -- a compone
 
 | Role | Size | Weight | Line Height | Tailwind Class |
 |------|------|--------|-------------|----------------|
-| Body | 14px | 400 (regular) | 1.5 | `text-sm font-normal leading-normal` |
-| Label | 14px | 500 (medium) | 1.4 | `text-sm font-medium` |
-| Heading | 24px | 700 (bold) | 1.2 | `text-2xl font-bold` |
+| Body / Label | 14px | 400 (regular) | 1.5 | `text-sm font-normal leading-normal` |
+| Heading | 24px | 600 (semibold) | 1.2 | `text-2xl font-semibold` |
 | Subheading | 16px | 600 (semibold) | 1.3 | `text-base font-semibold` |
 
+Exactly 2 weights used across the entire phase: **400 (regular)** for body text, labels, and badge text; **600 (semibold)** for all emphasis roles (headings, subheadings, conflict headings).
+
 Notes:
-- Established in Phase 1: page headings use `text-2xl font-bold`, secondary text uses `text-muted-foreground`.
-- Confidence badges use `text-xs font-medium` (12px, weight 500).
+- Page headings use `text-2xl font-semibold`, secondary text uses `text-muted-foreground`.
+- Confidence badges use `text-xs font-normal` (12px, weight 400).
 - VIN display uses `font-mono text-sm tracking-wider` for readability.
+- Field labels use `text-sm font-normal text-muted-foreground` (weight 400, distinguished by muted color rather than weight).
 
 ---
 
@@ -93,6 +95,12 @@ Confidence background badges:
 | Medium | amber-100/amber-900 | `bg-amber-100 dark:bg-amber-900/30` |
 | Low | red-100/red-900 | `bg-red-100 dark:bg-red-900/30` |
 | Not Found | muted | `bg-muted` |
+
+---
+
+## Focal Point
+
+**Primary focal point: the two drop zones** -- they occupy the upper half of the content area and are where the workflow begins. All user journeys in this phase start by uploading documents into these zones.
 
 ---
 
@@ -158,7 +166,7 @@ Drop zone states:
 
 1. **Empty (idle):** Dashed border, upload icon, "Drag PDF here or click to browse" text, label at top ("AP Invoice (Purchase)" / "AR Invoice (Sale)")
 2. **Drag-over:** Border changes to primary color, background gets subtle primary tint (`bg-primary/5`), icon pulses
-3. **File loaded:** Solid primary border, file icon replaces upload icon, filename displayed, file size displayed, "Remove" ghost button appears
+3. **File loaded:** Solid primary border, file icon replaces upload icon, filename displayed, file size displayed, "Remove File" ghost button appears
 4. **Invalid file:** Destructive border flash, toast notification "Only PDF files are accepted"
 5. **Uploading:** Skeleton pulse overlay on the drop zone
 
@@ -234,9 +242,9 @@ Each extracted field is displayed as a row in a 2-column responsive grid:
 
 | Element | Style |
 |---------|-------|
-| Field label | `text-sm font-medium text-muted-foreground` width 120px min |
+| Field label | `text-sm font-normal text-muted-foreground` width 120px min |
 | Field value | `text-sm font-normal` -- monospace for VIN (`font-mono tracking-wider`) |
-| Confidence badge | Pill shape: `rounded-full px-2 py-0.5 text-xs font-medium` with confidence color bg + text |
+| Confidence badge | Pill shape: `rounded-full px-2 py-0.5 text-xs font-normal` with confidence color bg + text |
 | Not found value | Double dash `--` in `text-muted-foreground italic` |
 | VIN valid icon | Lucide `CheckCircle2` size-4 in green |
 | VIN invalid icon | Lucide `AlertTriangle` size-4 in destructive |
@@ -281,7 +289,7 @@ When both AP and AR are uploaded and conflicts exist:
 
 | Component | Phase 2 Usage |
 |-----------|---------------|
-| Button | "Start Extraction" CTA, "Retry", "Remove" file, "Continue to Review" |
+| Button | "Start Extraction" CTA, "Retry", "Remove File", "Continue to Review" |
 | Card | Drop zone wrapper, job number wrapper, results wrapper, conflict card |
 | Input | Job number field |
 | Label | Job number label, drop zone labels |
@@ -341,7 +349,7 @@ Install command: `npx shadcn@latest add badge alert`
 | AR drop zone label | "AR Invoice (Sale)" |
 | Drop zone idle text | "Drag PDF here or click to browse" |
 | Drop zone drag-over text | "Drop PDF to upload" |
-| File loaded display | "{filename} ({size})" with "Remove" button |
+| File loaded display | "{filename} ({size})" with "Remove File" button |
 | Job number label | "Job Number" |
 | Job number helper | "Auto-filled from PDF if detected" |
 | VIN valid | "VIN valid -- format and check digit verified" |
@@ -354,13 +362,13 @@ Install command: `npx shadcn@latest add badge alert`
 | Not found field value | "--" (em dash) |
 | Continue action | "Continue to Review" |
 | Retry action | "Retry Extraction" |
-| Remove file action | "Remove" |
+| Remove file action | "Remove File" |
 
 ### Destructive Actions
 
 | Action | Confirmation Approach |
 |--------|----------------------|
-| Remove uploaded file | No confirmation -- instant with "Remove" ghost button. File can be re-uploaded immediately. Low-stakes action. |
+| Remove uploaded file | No confirmation -- instant with "Remove File" ghost button. File can be re-uploaded immediately. Low-stakes action. |
 | Retry extraction | No confirmation -- replaces existing extraction data. Acceptable because data hasn't been reviewed yet. |
 
 No high-stakes destructive actions exist in Phase 2. Approval and deletion are Phase 3+ concerns.
@@ -425,7 +433,7 @@ The sidebar collapses on mobile per Phase 1 established behavior (SidebarProvide
 | VIN validation | `role="status"` with descriptive text readable by screen readers |
 | Conflict warnings | `role="alert"` for immediate screen reader announcement |
 | File loaded state | Announce "{filename} uploaded to AP Invoice" via aria-live |
-| Remove button | `aria-label="Remove {filename}"` |
+| Remove File button | `aria-label="Remove file {filename}"` |
 | Toast notifications | Sonner handles aria-live automatically |
 
 ---
