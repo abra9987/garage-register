@@ -16,10 +16,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### PDF Upload
 
-- [ ] **UPLD-01**: User can drag-and-drop or click-to-browse PDF files (AP and AR per vehicle)
-- [ ] **UPLD-02**: User can associate two PDFs (AP purchase + AR sale) with one vehicle deal via job number
+- [x] **UPLD-01**: User can drag-and-drop or click-to-browse PDF files (AP and AR per vehicle)
+- [x] **UPLD-02**: User can associate two PDFs (AP purchase + AR sale) with one vehicle deal via job number
 - [x] **UPLD-03**: System validates uploaded files are PDFs and within size limit (10MB)
-- [ ] **UPLD-04**: User sees filename and thumbnail/icon after upload
+- [x] **UPLD-04**: User sees filename and thumbnail/icon after upload
 
 ### Data Extraction
 
@@ -121,10 +121,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUDT-03 | Phase 1 | Complete |
 | UIUX-02 | Phase 1 | Complete |
 | UIUX-04 | Phase 1 | Complete |
-| UPLD-01 | Phase 2 | Pending |
-| UPLD-02 | Phase 2 | Pending |
+| UPLD-01 | Phase 2 | Complete |
+| UPLD-02 | Phase 2 | Complete |
 | UPLD-03 | Phase 2 | Complete |
-| UPLD-04 | Phase 2 | Pending |
+| UPLD-04 | Phase 2 | Complete |
 | EXTR-01 | Phase 2 | Complete |
 | EXTR-02 | Phase 2 | Complete |
 | EXTR-03 | Phase 2 | Complete |
