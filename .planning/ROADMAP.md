@@ -12,7 +12,7 @@ This roadmap follows the natural data pipeline of the Garage Register: foundatio
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation + Auth** - Project skeleton, database schema, authentication, audit trail infrastructure, and baseline UI setup
+- [x] **Phase 1: Foundation + Auth** - Project skeleton, database schema, authentication, audit trail infrastructure, and baseline UI setup (completed 2026-04-09)
 - [ ] **Phase 2: Upload + Extraction Pipeline** - PDF upload, Claude API vision extraction, VIN validation, confidence scoring, and AP/AR paired processing
 - [ ] **Phase 3: Review + Approval** - Side-by-side PDF review with confidence highlighting, field editing, and approval workflow
 - [ ] **Phase 4: Export + Register + Dashboard** - XLSX export (new and append), vehicle register with search/filter, dashboard, and mobile responsive layout
@@ -80,7 +80,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation + Auth | 0/2 | Planning complete | - |
+| 1. Foundation + Auth | 2/2 | Complete    | 2026-04-09 |
 | 2. Upload + Extraction Pipeline | 0/TBD | Not started | - |
 | 3. Review + Approval | 0/TBD | Not started | - |
 | 4. Export + Register + Dashboard | 0/TBD | Not started | - |
