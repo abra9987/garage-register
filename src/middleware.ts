@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
+export const runtime = "nodejs";
+
 export async function middleware(request: NextRequest) {
   // Allow login page and auth API routes
   const { pathname } = request.nextUrl;
