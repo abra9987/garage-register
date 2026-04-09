@@ -59,7 +59,8 @@ export async function register() {
       ) {
         console.log("[seed] Admin user already exists, skipping");
       } else {
-        console.error("[seed] Failed to seed admin user:", error);
+        // Log but don't crash — DB might not be reachable yet at startup
+        console.warn("[seed] Could not seed admin user (will retry on next restart):", error instanceof Error ? error.message : error);
       }
     }
   }
