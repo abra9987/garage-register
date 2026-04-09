@@ -147,3 +147,29 @@ export async function PUT(
 
   return apiSuccess({ vehicle: updated });
 }
+
+/**
+ * DELETE /api/vehicles/[id] -- Delete vehicle and its documents.
+ */
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+
+  const session = await auth.api.getSession({ headers: request.headers });
+  if (!session) return apiError("Unauthorized", 401);
+
+  const [vehicle] = await db
+    .select()
+    .from(vehicles)
+    .where(eq(vehicles.id, id))
+    .limit(1);
+  if (!vehicle) return apiError("Vehicle not found", 404);
+
+  // Delete documents first (foreign key constraint)
+  await db.delete(documents).where(eq(documents.vehicleId, id));
+  await db.delete(vehicles).where(eq(vehicles.id, id));
+
+  return apiSuccess({ deleted: true });
+}
