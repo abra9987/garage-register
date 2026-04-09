@@ -9,10 +9,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Authentication
 
-- [ ] **AUTH-01**: User can log in with email and password
-- [ ] **AUTH-02**: User session persists across browser refresh (httpOnly cookie)
-- [ ] **AUTH-03**: User can log out from any page
-- [ ] **AUTH-04**: System supports admin and operator roles (admin-only for v1)
+- [x] **AUTH-01**: User can log in with email and password
+- [x] **AUTH-02**: User session persists across browser refresh (httpOnly cookie)
+- [x] **AUTH-03**: User can log out from any page
+- [x] **AUTH-04**: System supports admin and operator roles (admin-only for v1)
 
 ### PDF Upload
 
@@ -66,9 +66,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Audit Trail
 
-- [ ] **AUDT-01**: System logs every state change: upload, extraction, field edits (old->new value), approval, export
-- [ ] **AUDT-02**: Each log entry has timestamp and user identifier
-- [ ] **AUDT-03**: Audit log is immutable (append-only)
+- [x] **AUDT-01**: System logs every state change: upload, extraction, field edits (old->new value), approval, export
+- [x] **AUDT-02**: Each log entry has timestamp and user identifier
+- [x] **AUDT-03**: Audit log is immutable (append-only)
 
 ### UI/UX
 
@@ -112,13 +112,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 1 | Pending |
-| AUTH-02 | Phase 1 | Pending |
-| AUTH-03 | Phase 1 | Pending |
-| AUTH-04 | Phase 1 | Pending |
-| AUDT-01 | Phase 1 | Pending |
-| AUDT-02 | Phase 1 | Pending |
-| AUDT-03 | Phase 1 | Pending |
+| AUTH-01 | Phase 1 | Complete |
+| AUTH-02 | Phase 1 | Complete |
+| AUTH-03 | Phase 1 | Complete |
+| AUTH-04 | Phase 1 | Complete |
+| AUDT-01 | Phase 1 | Complete |
+| AUDT-02 | Phase 1 | Complete |
+| AUDT-03 | Phase 1 | Complete |
 | UIUX-02 | Phase 1 | Pending |
 | UIUX-04 | Phase 1 | Pending |
 | UPLD-01 | Phase 2 | Pending |
