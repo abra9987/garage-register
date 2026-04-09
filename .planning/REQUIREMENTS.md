@@ -49,7 +49,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **XPRT-01**: User can export approved records to a new XLSX file in exact Ministry of Transportation Ontario Garage Register format
 - [x] **XPRT-02**: User can upload existing Garage Register XLSX and append new approved records to it
 - [x] **XPRT-03**: System preserves all existing data and formatting when appending to existing XLSX
-- [ ] **XPRT-04**: User can select which approved records to include in export
+- [x] **XPRT-04**: User can select which approved records to include in export
 - [x] **XPRT-05**: Exported XLSX is downloadable with one click
 
 ### Register & Search
@@ -143,7 +143,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | XPRT-01 | Phase 4 | Complete |
 | XPRT-02 | Phase 4 | Complete |
 | XPRT-03 | Phase 4 | Complete |
-| XPRT-04 | Phase 4 | Pending |
+| XPRT-04 | Phase 4 | Complete |
 | XPRT-05 | Phase 4 | Complete |
 | REGS-01 | Phase 4 | Complete |
 | REGS-02 | Phase 4 | Complete |
