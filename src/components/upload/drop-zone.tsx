@@ -1,11 +1,21 @@
 "use client";
 
-import { useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { useDropzone, type FileRejection } from "react-dropzone";
 import { Upload, FileText, X } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+
+const UploadPdfPreview = dynamic(
+  () =>
+    import("./upload-pdf-preview").then((mod) => ({
+      default: mod.UploadPdfPreview,
+    })),
+  { ssr: false },
+);
 
 interface DropZoneProps {
   label: string;
@@ -32,6 +42,22 @@ export function DropZone({
   onRemove,
   disabled = false,
 }: DropZoneProps) {
+  const [numPages, setNumPages] = useState<number | null>(null);
+  const [previewError, setPreviewError] = useState(false);
+
+  // Reset preview state when file changes
+  useEffect(() => {
+    setNumPages(null);
+    setPreviewError(false);
+  }, [file]);
+
+  const handlePreviewError = useCallback(() => {
+    setPreviewError(true);
+    toast.error("Unable to preview PDF. The file may be corrupted.", {
+      duration: 5000,
+    });
+  }, []);
+
   const handleDrop = useCallback(
     (acceptedFiles: File[]) => {
       if (acceptedFiles.length > 0) {
@@ -69,20 +95,13 @@ export function DropZone({
     <div className="flex-1">
       <p className="mb-2 text-sm font-semibold">{label}</p>
       {file ? (
-        /* File loaded state */
-        <div
-          className={cn(
-            "flex min-h-[200px] flex-col items-center justify-center rounded-lg border-2 border-solid border-primary p-8",
-          )}
-        >
-          <FileText className="mb-2 size-8 text-muted-foreground" />
-          <p className="text-sm font-normal">
-            {file.name} ({formatFileSize(file.size)})
-          </p>
+        /* File loaded state with PDF preview */
+        <div className="relative flex min-h-[200px] flex-col items-center rounded-lg border-2 border-solid border-primary p-4">
+          {/* Remove button overlaid top-right */}
           <Button
             variant="ghost"
-            size="sm"
-            className="mt-2"
+            size="icon"
+            className="absolute top-2 right-2 z-10 size-8 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background"
             onClick={(e) => {
               e.stopPropagation();
               onRemove();
@@ -90,8 +109,33 @@ export function DropZone({
             aria-label={`Remove file ${file.name}`}
           >
             <X className="size-4" />
-            Remove File
           </Button>
+
+          {/* PDF Preview or Fallback */}
+          {previewError ? (
+            /* Fallback: file info without preview */
+            <div className="flex flex-1 flex-col items-center justify-center gap-2">
+              <FileText className="size-8 text-muted-foreground" />
+              <p className="text-sm font-normal">
+                {file.name} ({formatFileSize(file.size)})
+              </p>
+            </div>
+          ) : (
+            /* PDF Preview */
+            <div className="flex w-full flex-col items-center gap-2">
+              <UploadPdfPreview
+                file={file}
+                onNumPages={setNumPages}
+                onError={handlePreviewError}
+              />
+              <p className="text-center text-sm font-normal truncate max-w-full">
+                {file.name} ({formatFileSize(file.size)})
+              </p>
+              {numPages !== null && numPages > 1 && (
+                <Badge variant="secondary">{numPages} pages</Badge>
+              )}
+            </div>
+          )}
         </div>
       ) : (
         /* Empty / drag-over state */
