@@ -18,7 +18,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [ ] **UPLD-01**: User can drag-and-drop or click-to-browse PDF files (AP and AR per vehicle)
 - [ ] **UPLD-02**: User can associate two PDFs (AP purchase + AR sale) with one vehicle deal via job number
-- [ ] **UPLD-03**: System validates uploaded files are PDFs and within size limit (10MB)
+- [x] **UPLD-03**: System validates uploaded files are PDFs and within size limit (10MB)
 - [ ] **UPLD-04**: User sees filename and thumbnail/icon after upload
 
 ### Data Extraction
@@ -32,9 +32,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### VIN Validation
 
-- [ ] **VIN-01**: System validates VIN format (17 characters, valid character set)
-- [ ] **VIN-02**: System validates VIN check digit (position 9) using NHTSA algorithm
-- [ ] **VIN-03**: Invalid VIN is flagged with clear error message during review
+- [x] **VIN-01**: System validates VIN format (17 characters, valid character set)
+- [x] **VIN-02**: System validates VIN check digit (position 9) using NHTSA algorithm
+- [x] **VIN-03**: Invalid VIN is flagged with clear error message during review
 
 ### Human Review
 
@@ -123,7 +123,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UIUX-04 | Phase 1 | Complete |
 | UPLD-01 | Phase 2 | Pending |
 | UPLD-02 | Phase 2 | Pending |
-| UPLD-03 | Phase 2 | Pending |
+| UPLD-03 | Phase 2 | Complete |
 | UPLD-04 | Phase 2 | Pending |
 | EXTR-01 | Phase 2 | Pending |
 | EXTR-02 | Phase 2 | Pending |
@@ -131,9 +131,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EXTR-04 | Phase 2 | Pending |
 | EXTR-05 | Phase 2 | Pending |
 | EXTR-06 | Phase 2 | Pending |
-| VIN-01 | Phase 2 | Pending |
-| VIN-02 | Phase 2 | Pending |
-| VIN-03 | Phase 2 | Pending |
+| VIN-01 | Phase 2 | Complete |
+| VIN-02 | Phase 2 | Complete |
+| VIN-03 | Phase 2 | Complete |
 | REVW-01 | Phase 3 | Pending |
 | REVW-02 | Phase 3 | Pending |
 | REVW-03 | Phase 3 | Pending |
