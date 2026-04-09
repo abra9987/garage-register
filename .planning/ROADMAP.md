@@ -79,8 +79,13 @@ Plans:
   3. User can view all vehicle records in a sortable table and search/filter by VIN, job number, make, model, status, or date
   4. Dashboard shows pending review count, monthly export count, and recent activity feed
   5. Dashboard and register table are usable on a mobile phone screen
-**Plans**: TBD
+**Plans**: 3 plans
 **UI hint**: yes
+
+Plans:
+- [ ] 04-01-PLAN.md -- XLSX export engine (generateNew + appendToExisting) and export API routes
+- [ ] 04-02-PLAN.md -- Dashboard (stat cards, activity feed, quick actions) + Register (sortable table, search, filters, pagination) with API routes
+- [ ] 04-03-PLAN.md -- Export page UI (tabs, record selection, download trigger, append upload) + end-to-end verification
 
 ## Progress
 
@@ -92,4 +97,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | 1. Foundation + Auth | 2/2 | Complete    | 2026-04-09 |
 | 2. Upload + Extraction Pipeline | 3/3 | Complete | 2026-04-09 |
 | 3. Review + Approval | 0/2 | Not started | - |
-| 4. Export + Register + Dashboard | 0/TBD | Not started | - |
+| 4. Export + Register + Dashboard | 0/3 | Not started | - |
