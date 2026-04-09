@@ -2,10 +2,19 @@ export async function register() {
   // Only run on server (not during build or edge)
   if (process.env.NEXT_RUNTIME === "nodejs") {
     const { db } = await import("@/lib/db");
+    const { migrate } = await import("drizzle-orm/postgres-js/migrator");
     const { user, account } = await import("@/lib/db/schema");
     const { count } = await import("drizzle-orm");
     const { hashPassword } = await import("better-auth/crypto");
     const crypto = await import("crypto");
+
+    // Run Drizzle migrations before anything else
+    try {
+      await migrate(db, { migrationsFolder: "./drizzle" });
+      console.log("[migrate] Migrations applied successfully");
+    } catch (error) {
+      console.warn("[migrate] Migration error:", error instanceof Error ? error.message : error);
+    }
 
     try {
       const [result] = await db.select({ count: count() }).from(user);
