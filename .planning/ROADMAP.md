@@ -62,8 +62,12 @@ Plans:
   2. Fields are color-coded by confidence (green/yellow/red) and "not found" fields are visually distinct
   3. User can edit any field and explicitly approve a record (approval is required before export)
   4. UI uses large buttons and minimal clicks -- a non-technical user can complete review without instructions
-**Plans**: TBD
+**Plans**: 2 plans
 **UI hint**: yes
+
+Plans:
+- [ ] 03-01-PLAN.md -- Dependencies, validation schemas, API routes (vehicle detail/update, approve/unapprove, PDF content)
+- [ ] 03-02-PLAN.md -- Review page UI (PDF preview, confidence-bordered form, approval flow), register page update
 
 ### Phase 4: Export + Register + Dashboard
 **Goal**: Andrey can export approved records to Ministry-format XLSX, search the vehicle register, and see processing status at a glance
@@ -86,6 +90,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation + Auth | 2/2 | Complete    | 2026-04-09 |
-| 2. Upload + Extraction Pipeline | 0/3 | Not started | - |
-| 3. Review + Approval | 0/TBD | Not started | - |
+| 2. Upload + Extraction Pipeline | 3/3 | Complete | 2026-04-09 |
+| 3. Review + Approval | 0/2 | Not started | - |
 | 4. Export + Register + Dashboard | 0/TBD | Not started | - |
