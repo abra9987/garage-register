@@ -67,7 +67,7 @@ Plans:
 
 Plans:
 - [x] 03-01-PLAN.md -- Dependencies, validation schemas, API routes (vehicle detail/update, approve/unapprove, PDF content)
-- [ ] 03-02-PLAN.md -- Review page UI (PDF preview, confidence-bordered form, approval flow), register page update
+- [x] 03-02-PLAN.md -- Review page UI (PDF preview, confidence-bordered form, approval flow), register page update
 
 ### Phase 4: Export + Register + Dashboard
 **Goal**: Andrey can export approved records to Ministry-format XLSX, search the vehicle register, and see processing status at a glance

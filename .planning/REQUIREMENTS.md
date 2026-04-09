@@ -38,11 +38,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Human Review
 
-- [ ] **REVW-01**: User sees extracted fields alongside original PDF preview (side-by-side layout)
-- [ ] **REVW-02**: Fields are color-coded by extraction confidence (green >90%, yellow 70-90%, red <70%)
+- [x] **REVW-01**: User sees extracted fields alongside original PDF preview (side-by-side layout)
+- [x] **REVW-02**: Fields are color-coded by extraction confidence (green >90%, yellow 70-90%, red <70%)
 - [x] **REVW-03**: User can edit any extracted field before approval
 - [x] **REVW-04**: User can explicitly approve a record (approval gate before export)
-- [ ] **REVW-05**: Fields marked as "not found in document" are visually distinct from low-confidence fields
+- [x] **REVW-05**: Fields marked as "not found in document" are visually distinct from low-confidence fields
 
 ### Export
 
@@ -74,7 +74,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [ ] **UIUX-01**: Application is mobile-responsive (dashboard and search work on phone, review is desktop-preferred)
 - [x] **UIUX-02**: Application supports light and dark theme via prefers-color-scheme
-- [ ] **UIUX-03**: UI uses large buttons, visual cues, and minimal actions for non-technical user
+- [x] **UIUX-03**: UI uses large buttons, visual cues, and minimal actions for non-technical user
 - [x] **UIUX-04**: No backend errors shown to user -- system retries silently, user always sees success or clear guidance
 
 ## v2 Requirements
@@ -134,12 +134,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VIN-01 | Phase 2 | Complete |
 | VIN-02 | Phase 2 | Complete |
 | VIN-03 | Phase 2 | Complete |
-| REVW-01 | Phase 3 | Pending |
-| REVW-02 | Phase 3 | Pending |
+| REVW-01 | Phase 3 | Complete |
+| REVW-02 | Phase 3 | Complete |
 | REVW-03 | Phase 3 | Complete |
 | REVW-04 | Phase 3 | Complete |
-| REVW-05 | Phase 3 | Pending |
-| UIUX-03 | Phase 3 | Pending |
+| REVW-05 | Phase 3 | Complete |
+| UIUX-03 | Phase 3 | Complete |
 | XPRT-01 | Phase 4 | Pending |
 | XPRT-02 | Phase 4 | Pending |
 | XPRT-03 | Phase 4 | Pending |
