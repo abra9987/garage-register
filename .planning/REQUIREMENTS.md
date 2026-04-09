@@ -23,12 +23,12 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Data Extraction
 
-- [ ] **EXTR-01**: System sends uploaded PDFs to Claude API vision and receives structured JSON with vehicle data fields
-- [ ] **EXTR-02**: System extracts all ministry register fields: Job #, VIN, Year, Make, Model, Color, Odometer, Seller Name/Address, Buyer Name/Address, Purchase Price, Sale Price, Date Acquired, Date Disposed
-- [ ] **EXTR-03**: System handles all 6 document types without configuration (Simple Dealer Invoice, US Supplier/QuickBooks, Wholesale BOS, OMVIC Dealer Form, Quebec BOS French, AD Auto AR invoices)
-- [ ] **EXTR-04**: System handles scanned PDFs without text layer via Claude vision
-- [ ] **EXTR-05**: System returns per-field confidence scores (high/medium/low) for extracted data
-- [ ] **EXTR-06**: When both AP and AR PDFs are provided, system cross-validates shared fields (VIN must match, vehicle details consistent)
+- [x] **EXTR-01**: System sends uploaded PDFs to Claude API vision and receives structured JSON with vehicle data fields
+- [x] **EXTR-02**: System extracts all ministry register fields: Job #, VIN, Year, Make, Model, Color, Odometer, Seller Name/Address, Buyer Name/Address, Purchase Price, Sale Price, Date Acquired, Date Disposed
+- [x] **EXTR-03**: System handles all 6 document types without configuration (Simple Dealer Invoice, US Supplier/QuickBooks, Wholesale BOS, OMVIC Dealer Form, Quebec BOS French, AD Auto AR invoices)
+- [x] **EXTR-04**: System handles scanned PDFs without text layer via Claude vision
+- [x] **EXTR-05**: System returns per-field confidence scores (high/medium/low) for extracted data
+- [x] **EXTR-06**: When both AP and AR PDFs are provided, system cross-validates shared fields (VIN must match, vehicle details consistent)
 
 ### VIN Validation
 
@@ -125,12 +125,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UPLD-02 | Phase 2 | Pending |
 | UPLD-03 | Phase 2 | Complete |
 | UPLD-04 | Phase 2 | Pending |
-| EXTR-01 | Phase 2 | Pending |
-| EXTR-02 | Phase 2 | Pending |
-| EXTR-03 | Phase 2 | Pending |
-| EXTR-04 | Phase 2 | Pending |
-| EXTR-05 | Phase 2 | Pending |
-| EXTR-06 | Phase 2 | Pending |
+| EXTR-01 | Phase 2 | Complete |
+| EXTR-02 | Phase 2 | Complete |
+| EXTR-03 | Phase 2 | Complete |
+| EXTR-04 | Phase 2 | Complete |
+| EXTR-05 | Phase 2 | Complete |
+| EXTR-06 | Phase 2 | Complete |
 | VIN-01 | Phase 2 | Complete |
 | VIN-02 | Phase 2 | Complete |
 | VIN-03 | Phase 2 | Complete |

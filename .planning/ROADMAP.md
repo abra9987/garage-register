@@ -50,7 +50,7 @@ Plans:
 
 Plans:
 - [x] 02-01-PLAN.md -- Schema migration (bytea + confidence), extraction types, VIN validation
-- [ ] 02-02-PLAN.md -- Claude API extraction engine (client, prompt, core logic, cross-validation)
+- [x] 02-02-PLAN.md -- Claude API extraction engine (client, prompt, core logic, cross-validation)
 - [ ] 02-03-PLAN.md -- Upload page UI, API routes, full pipeline wiring with status polling
 
 ### Phase 3: Review + Approval
