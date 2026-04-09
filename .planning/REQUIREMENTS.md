@@ -40,8 +40,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [ ] **REVW-01**: User sees extracted fields alongside original PDF preview (side-by-side layout)
 - [ ] **REVW-02**: Fields are color-coded by extraction confidence (green >90%, yellow 70-90%, red <70%)
-- [ ] **REVW-03**: User can edit any extracted field before approval
-- [ ] **REVW-04**: User can explicitly approve a record (approval gate before export)
+- [x] **REVW-03**: User can edit any extracted field before approval
+- [x] **REVW-04**: User can explicitly approve a record (approval gate before export)
 - [ ] **REVW-05**: Fields marked as "not found in document" are visually distinct from low-confidence fields
 
 ### Export
@@ -136,8 +136,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VIN-03 | Phase 2 | Complete |
 | REVW-01 | Phase 3 | Pending |
 | REVW-02 | Phase 3 | Pending |
-| REVW-03 | Phase 3 | Pending |
-| REVW-04 | Phase 3 | Pending |
+| REVW-03 | Phase 3 | Complete |
+| REVW-04 | Phase 3 | Complete |
 | REVW-05 | Phase 3 | Pending |
 | UIUX-03 | Phase 3 | Pending |
 | XPRT-01 | Phase 4 | Pending |

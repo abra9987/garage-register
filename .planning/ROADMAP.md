@@ -66,7 +66,7 @@ Plans:
 **UI hint**: yes
 
 Plans:
-- [ ] 03-01-PLAN.md -- Dependencies, validation schemas, API routes (vehicle detail/update, approve/unapprove, PDF content)
+- [x] 03-01-PLAN.md -- Dependencies, validation schemas, API routes (vehicle detail/update, approve/unapprove, PDF content)
 - [ ] 03-02-PLAN.md -- Review page UI (PDF preview, confidence-bordered form, approval flow), register page update
 
 ### Phase 4: Export + Register + Dashboard
