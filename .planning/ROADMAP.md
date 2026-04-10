@@ -130,4 +130,4 @@ Plans:
 **UI hint**: yes
 
 Plans:
-- [ ] 06-01-PLAN.md -- AlertDialog + DeleteVehicleDialog component, delete buttons in register table/card and review action bar
+- [x] 06-01-PLAN.md -- AlertDialog + DeleteVehicleDialog component, delete buttons in register table/card and review action bar
