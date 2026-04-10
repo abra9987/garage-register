@@ -6,12 +6,14 @@ import {
   CheckCircle2,
   Pencil,
   Download,
+  Trash2,
   type LucideIcon,
 } from "lucide-react";
 
 interface ActivityItemProps {
   action: string;
   fieldName: string | null;
+  oldValue: string | null;
   jobNumber: string | null;
   year: number | null;
   make: string | null;
@@ -25,6 +27,9 @@ function getIcon(
 ): { Icon: LucideIcon; colorClass: string } {
   if (action === "created") {
     return { Icon: Upload, colorClass: "text-blue-600 dark:text-blue-400" };
+  }
+  if (action === "deleted") {
+    return { Icon: Trash2, colorClass: "text-red-600 dark:text-red-400" };
   }
   if (action === "exported") {
     return { Icon: Download, colorClass: "text-primary" };
@@ -42,19 +47,24 @@ function getIcon(
 function getDescription(
   action: string,
   fieldName: string | null,
+  oldValue: string | null,
   jobNumber: string | null,
   year: number | null,
   make: string | null,
   model: string | null
 ): string {
+  // For deleted vehicles, the JOIN returns nulls — use oldValue as fallback
   const identifier =
     jobNumber ||
     [year, make, model].filter(Boolean).join(" ") ||
+    oldValue ||
     "vehicle";
 
   switch (action) {
     case "created":
       return `Uploaded documents for ${identifier}`;
+    case "deleted":
+      return `Deleted ${identifier}`;
     case "exported":
       return `Exported ${identifier} to register`;
     case "updated":
@@ -70,6 +80,7 @@ function getDescription(
 export function ActivityItem({
   action,
   fieldName,
+  oldValue,
   jobNumber,
   year,
   make,
@@ -80,6 +91,7 @@ export function ActivityItem({
   const description = getDescription(
     action,
     fieldName,
+    oldValue,
     jobNumber,
     year,
     make,

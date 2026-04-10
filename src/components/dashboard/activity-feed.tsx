@@ -9,6 +9,7 @@ interface ActivityEntry {
   entityType: string;
   entityId: string;
   fieldName: string | null;
+  oldValue: string | null;
   timestamp: string;
   jobNumber: string | null;
   year: number | null;
@@ -38,6 +39,7 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
                 key={activity.id}
                 action={activity.action}
                 fieldName={activity.fieldName}
+                oldValue={activity.oldValue}
                 jobNumber={activity.jobNumber}
                 year={activity.year}
                 make={activity.make}

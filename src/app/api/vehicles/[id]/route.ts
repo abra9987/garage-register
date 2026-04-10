@@ -5,7 +5,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { vehicles, documents } from "@/lib/db/schema";
 import { apiSuccess, apiError } from "@/lib/api-response";
-import { logAuditBatch } from "@/lib/audit";
+import { logAudit, logAuditBatch } from "@/lib/audit";
 import { vehicleSaveSchema } from "@/lib/validation/vehicle-schema";
 
 /**
@@ -166,6 +166,17 @@ export async function DELETE(
     .where(eq(vehicles.id, id))
     .limit(1);
   if (!vehicle) return apiError("Vehicle not found", 404);
+
+  // Log audit before delete (vehicle data still available)
+  await logAudit({
+    entityType: "vehicle",
+    entityId: id,
+    action: "deleted",
+    userId: session.user.id,
+    oldValue: [vehicle.jobNumber, vehicle.year, vehicle.make, vehicle.model]
+      .filter(Boolean)
+      .join(" ") || undefined,
+  });
 
   // Delete documents first (foreign key constraint)
   await db.delete(documents).where(eq(documents.vehicleId, id));

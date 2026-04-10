@@ -41,6 +41,7 @@ export async function GET(request: NextRequest) {
         entityType: auditLog.entityType,
         entityId: auditLog.entityId,
         fieldName: auditLog.fieldName,
+        oldValue: auditLog.oldValue,
         timestamp: auditLog.timestamp,
         jobNumber: vehicles.jobNumber,
         year: vehicles.year,

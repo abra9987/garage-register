@@ -20,6 +20,7 @@ interface ActivityEntry {
   entityType: string;
   entityId: string;
   fieldName: string | null;
+  oldValue: string | null;
   timestamp: string;
   jobNumber: string | null;
   year: number | null;
