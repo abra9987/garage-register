@@ -38,10 +38,13 @@ export function UploadPdfPreview({
     };
   }, [file]);
 
-  // Measure container width with ResizeObserver
+  // Measure container width with ResizeObserver, seed from offsetWidth
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
+
+    // Seed initial width immediately to avoid rendering at natural PDF size
+    setContainerWidth(el.offsetWidth);
 
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
@@ -66,7 +69,7 @@ export function UploadPdfPreview({
   return (
     <div
       ref={containerRef}
-      className="bg-muted rounded-md overflow-hidden w-full max-h-[400px]"
+      className="bg-muted rounded-md overflow-hidden w-full"
       aria-label={`Preview of ${file.name}`}
       aria-busy={isLoading}
     >
