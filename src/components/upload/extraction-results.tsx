@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -175,7 +176,7 @@ export function ExtractionResults({
         />
 
         {/* Continue to Review */}
-        <Button variant="secondary" disabled title="Coming in Phase 3">
+        <Button render={<Link href={`/vehicles/${vehicle.id}/review`} />}>
           Continue to Review
         </Button>
       </CardContent>

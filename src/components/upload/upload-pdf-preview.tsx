@@ -66,7 +66,7 @@ export function UploadPdfPreview({
   return (
     <div
       ref={containerRef}
-      className="bg-muted rounded-md overflow-hidden w-full"
+      className="bg-muted rounded-md overflow-hidden w-full max-h-[400px]"
       aria-label={`Preview of ${file.name}`}
       aria-busy={isLoading}
     >
