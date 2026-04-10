@@ -101,7 +101,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | 3. Review + Approval | 2/2 | Complete | 2026-04-09 |
 | 4. Export + Register + Dashboard | 3/3 | Complete | 2026-04-09 |
 | 5. PDF Preview on Upload | 0/1 | Not started | - |
-| 6. Delete Vehicle from UI | 0/0 | Not started | - |
+| 6. Delete Vehicle from UI | 0/1 | Not started | - |
 
 ### Phase 5: PDF Preview on Upload
 **Goal**: Andrey can see a visual preview of uploaded AP/AR PDF files before submitting for extraction, confirming correct documents were selected
@@ -126,8 +126,8 @@ Plans:
   2. Clicking delete shows a confirmation dialog before proceeding
   3. Confirmed deletion removes the vehicle record and its associated documents
   4. Deleted vehicles no longer appear in register, dashboard, or export
-**Plans**: 0 plans
+**Plans**: 1 plan
 **UI hint**: yes
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 6 to break down)
+- [ ] 06-01-PLAN.md -- AlertDialog + DeleteVehicleDialog component, delete buttons in register table/card and review action bar
