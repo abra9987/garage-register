@@ -57,6 +57,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **REGS-01**: User can view all processed vehicle records in a table with sortable columns
 - [x] **REGS-02**: User can search records by VIN, job number, make, model, seller, or buyer
 - [x] **REGS-03**: User can filter records by status (pending review, approved, exported) and date range
+- [x] **REGS-04**: User can delete a vehicle record from the register and review views with a confirmation dialog
 
 ### Dashboard
 
@@ -148,6 +149,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | REGS-01 | Phase 4 | Complete |
 | REGS-02 | Phase 4 | Complete |
 | REGS-03 | Phase 4 | Complete |
+| REGS-04 | Phase 6 | Complete |
 | DASH-01 | Phase 4 | Complete |
 | DASH-02 | Phase 4 | Complete |
 | DASH-03 | Phase 4 | Complete |
