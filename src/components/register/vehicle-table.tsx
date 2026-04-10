@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowUp, ArrowDown } from "lucide-react";
+import { ArrowUp, ArrowDown, Trash2 } from "lucide-react";
 import {
   Table,
   TableHeader,
@@ -13,6 +14,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/review/status-badge";
+import { DeleteVehicleDialog } from "@/components/shared/delete-vehicle-dialog";
 
 type VehicleStatus = "extracting" | "pending_review" | "approved" | "exported";
 
@@ -38,6 +40,7 @@ interface VehicleTableProps {
   selectedIds: Set<string>;
   onToggleSelect: (id: string) => void;
   onToggleSelectAll: () => void;
+  onDelete: (id: string) => void;
 }
 
 const SORTABLE_COLUMNS = [
@@ -68,8 +71,10 @@ export function VehicleTable({
   selectedIds,
   onToggleSelect,
   onToggleSelectAll,
+  onDelete,
 }: VehicleTableProps) {
   const router = useRouter();
+  const [deleteTarget, setDeleteTarget] = useState<VehicleRow | null>(null);
 
   const approvedOnPage = vehicles.filter((v) => v.status === "approved");
   const allApprovedSelected =
@@ -110,7 +115,7 @@ export function VehicleTable({
                 </TableHead>
               );
             })}
-            <TableHead className="w-[80px] text-xs font-semibold uppercase tracking-wider text-muted-foreground bg-muted/50 py-3 px-4" />
+            <TableHead className="w-[120px] text-xs font-semibold uppercase tracking-wider text-muted-foreground bg-muted/50 py-3 px-4" />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -165,6 +170,15 @@ export function VehicleTable({
                 <Button
                   variant="ghost"
                   size="sm"
+                  onClick={() => setDeleteTarget(v)}
+                  className="text-muted-foreground hover:text-destructive"
+                  aria-label={`Delete ${v.jobNumber || "vehicle"}`}
+                >
+                  <Trash2 className="size-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => router.push(`/vehicles/${v.id}/review`)}
                 >
                   View
@@ -174,6 +188,22 @@ export function VehicleTable({
           ))}
         </TableBody>
       </Table>
+      <DeleteVehicleDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        vehicleId={deleteTarget?.id ?? ""}
+        jobNumber={deleteTarget?.jobNumber ?? null}
+        make={deleteTarget?.make ?? null}
+        model={deleteTarget?.model ?? null}
+        year={deleteTarget?.year ?? null}
+        status={deleteTarget?.status ?? "pending_review"}
+        onDeleted={() => {
+          if (deleteTarget) onDelete(deleteTarget.id);
+          setDeleteTarget(null);
+        }}
+      />
     </div>
   );
 }

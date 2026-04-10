@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Save, Loader2, CheckCircle2, Undo2 } from "lucide-react";
+import { Save, Loader2, CheckCircle2, Undo2, Trash2 } from "lucide-react";
 
 interface ActionBarProps {
   vehicleStatus: "extracting" | "pending_review" | "approved" | "exported";
@@ -10,9 +10,11 @@ interface ActionBarProps {
   onSave: () => void;
   onApprove: () => void;
   onUnapprove: () => void;
+  onDeleteClick: () => void;
   isSaving: boolean;
   isApproving: boolean;
   isUnapproving: boolean;
+  isDeleting: boolean;
 }
 
 export function ActionBar({
@@ -22,9 +24,11 @@ export function ActionBar({
   onSave,
   onApprove,
   onUnapprove,
+  onDeleteClick,
   isSaving,
   isApproving,
   isUnapproving,
+  isDeleting,
 }: ActionBarProps) {
   return (
     <div className="flex flex-col gap-3 sticky bottom-0 bg-card p-4 border-t lg:static lg:border-0 lg:p-0 lg:mt-4">
@@ -101,6 +105,30 @@ export function ActionBar({
           )}
         </Button>
       )}
+
+      {/* Spacer to separate destructive action */}
+      <div className="flex-1" />
+
+      {/* Delete Record Button */}
+      <Button
+        variant="ghost"
+        size="lg"
+        className="h-12 w-full text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+        onClick={onDeleteClick}
+        disabled={isDeleting}
+      >
+        {isDeleting ? (
+          <>
+            <Loader2 className="size-5 animate-spin" />
+            Deleting...
+          </>
+        ) : (
+          <>
+            <Trash2 className="size-5" />
+            Delete Record
+          </>
+        )}
+      </Button>
     </div>
   );
 }

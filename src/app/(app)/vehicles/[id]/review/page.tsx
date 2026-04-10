@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/review/status-badge";
 import { ReviewForm } from "@/components/review/review-form";
 import { ActionBar } from "@/components/review/action-bar";
+import { DeleteVehicleDialog } from "@/components/shared/delete-vehicle-dialog";
 import type { ConfidenceLevel } from "@/types/extraction";
 import type { FieldConflict } from "@/lib/extraction/cross-validate";
 import type { VehicleSaveInput } from "@/lib/validation/vehicle-schema";
@@ -54,8 +55,10 @@ interface DocumentRecord {
 export default function ReviewPage() {
   const params = useParams<{ id: string }>();
   const id = params.id;
+  const router = useRouter();
 
   const [vehicle, setVehicle] = useState<VehicleRecord | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [documents, setDocuments] = useState<DocumentRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -395,9 +398,24 @@ export default function ReviewPage() {
             }
             onApprove={handleApprove}
             onUnapprove={handleUnapprove}
+            onDeleteClick={() => setShowDeleteDialog(true)}
             isSaving={isSaving}
             isApproving={isApproving}
             isUnapproving={isUnapproving}
+            isDeleting={false}
+          />
+          <DeleteVehicleDialog
+            open={showDeleteDialog}
+            onOpenChange={setShowDeleteDialog}
+            vehicleId={vehicle.id}
+            jobNumber={vehicle.jobNumber}
+            make={vehicle.make}
+            model={vehicle.model}
+            year={vehicle.year}
+            status={vehicle.status}
+            onDeleted={() => {
+              router.push("/register");
+            }}
           />
         </div>
       </div>

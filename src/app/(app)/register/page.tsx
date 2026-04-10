@@ -146,6 +146,16 @@ export default function RegisterPage() {
     });
   }, []);
 
+  const handleDeleteVehicle = useCallback((id: string) => {
+    setVehicles((prev) => prev.filter((v) => v.id !== id));
+    setTotal((prev) => prev - 1);
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  }, []);
+
   const handleToggleSelectAll = useCallback(() => {
     const approvedOnPage = vehicles.filter((v) => v.status === "approved");
     const allSelected = approvedOnPage.every((v) => selectedIds.has(v.id));
@@ -236,6 +246,7 @@ export default function RegisterPage() {
             selectedIds={selectedIds}
             onToggleSelect={handleToggleSelect}
             onToggleSelectAll={handleToggleSelectAll}
+            onDelete={handleDeleteVehicle}
           />
           <div className="space-y-3 md:hidden">
             {vehicles.map((v) => (
@@ -244,6 +255,7 @@ export default function RegisterPage() {
                 vehicle={v}
                 selected={selectedIds.has(v.id)}
                 onToggle={() => handleToggleSelect(v.id)}
+                onDelete={() => handleDeleteVehicle(v.id)}
               />
             ))}
           </div>
