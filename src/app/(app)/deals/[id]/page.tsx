@@ -59,7 +59,7 @@ function genBody(f: Record<string, string>): string {
   if (f.hst) lines.push(`${fmtPrice(f.hst, cur)} HST`);
   if (f.sellingPrice) lines.push(`${fmtPrice(f.sellingPrice, cur)} Selling price`);
   if (f.commissionAmount && f.commissionFor)
-    lines.push(`${fmtPrice(f.commissionAmount, cur)} for ${f.commissionFor}`);
+    lines.push(`${fmtPrice(f.commissionAmount, cur)} for ${f.commissionFor} (included)`);
   if (f.delivery) {
     lines.push(""); lines.push(`DELIVERY TO ${f.delivery.toUpperCase()}`);
     if (f.warehouseAddress) lines.push(f.warehouseAddress);

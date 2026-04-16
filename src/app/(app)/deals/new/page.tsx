@@ -48,7 +48,7 @@ function genBody(f: Record<string, string>): string {
   if (f.hst) lines.push(`${fmtPrice(f.hst, cur)} HST`);
   if (f.sellingPrice) lines.push(`${fmtPrice(f.sellingPrice, cur)} Selling price`);
   if (f.commissionAmount && f.commissionFor)
-    lines.push(`${fmtPrice(f.commissionAmount, cur)} for ${f.commissionFor}`);
+    lines.push(`${fmtPrice(f.commissionAmount, cur)} for ${f.commissionFor} (included)`);
   if (f.delivery) {
     lines.push("");
     lines.push(`DELIVERY TO ${f.delivery.toUpperCase()}`);
@@ -140,10 +140,7 @@ export default function NewDealPage() {
       setMsrp(data.msrp?.toString() ?? "");
       setBuyingPrice(data.buying_price?.toString() ?? "");
       setHst(data.hst?.toString() ?? "");
-      setClientName(data.client_name ?? "");
-      setClientAddress(data.client_address ?? "");
-      setClientPhone(data.client_phone ?? "");
-      setClientEmail(data.client_email ?? "");
+      // Client fields left empty — Denis fills manually
       if (data.currency) setCurrency(data.currency);
       setExtracted(true);
       toast.success("Data extracted");
