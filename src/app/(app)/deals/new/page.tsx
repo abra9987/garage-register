@@ -82,6 +82,17 @@ function DocPreview({ file }: { file: File }) {
   return <iframe src={url} title={file.name} className="h-[500px] w-full rounded border" />;
 }
 
+function generateJobNumber(vinValue: string): string {
+  if (vinValue.length < 5) return "";
+  const now = new Date();
+  const year = now.getFullYear();
+  const yy = String(year).slice(-2);
+  // J = 2026, K = 2027, L = 2028, ...
+  const letterCode = String.fromCharCode(74 + (year - 2026)); // 74 = 'J'
+  const last5 = vinValue.slice(-5).toUpperCase();
+  return `${yy}-${letterCode}${last5}`;
+}
+
 export default function NewDealPage() {
   const router = useRouter();
   const [stickerFiles, setStickerFiles] = useState<File[]>([]);
@@ -155,7 +166,10 @@ export default function NewDealPage() {
       setExteriorColor(data.exterior_color ?? "");
       setInteriorColor(data.interior_color ?? "");
 
-      setVin(data.vin ?? "");
+      const extractedVin = data.vin ?? "";
+      setVin(extractedVin);
+      const generated = generateJobNumber(extractedVin);
+      if (generated) setJobNumber(generated);
       setMsrp(data.msrp?.toString() ?? "");
       setBuyingPrice(data.buying_price?.toString() ?? "");
       setHst(data.hst?.toString() ?? "");
@@ -333,7 +347,12 @@ export default function NewDealPage() {
                 <div className="mt-3 grid grid-cols-2 gap-3">
                   <div>
                     <Label className="text-xs">VIN</Label>
-                    <Input value={vin} onChange={(e) => setVin(e.target.value)} className="font-mono" />
+                    <Input value={vin} onChange={(e) => {
+                      const v = e.target.value;
+                      setVin(v);
+                      const generated = generateJobNumber(v);
+                      if (generated) setJobNumber(generated);
+                    }} className="font-mono" />
                   </div>
                   <div>
                     <Label className="text-xs">Mileage (km)</Label>
