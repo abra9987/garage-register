@@ -631,7 +631,7 @@ export default function NewDealPage() {
                   ) : (
                     <Save className="size-4" />
                   )}
-                  Save Deal
+                  Save Draft
                 </Button>
               </div>
             </CardContent>

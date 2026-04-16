@@ -1,9 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -50,51 +54,140 @@ interface Deal {
   documents: DocMeta[];
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-CA", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+function formatPrice(value: number | null, cur: string): string {
+  if (value === null) return "";
+  const formatted = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: value % 1 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+  return `${formatted} ${cur}`;
+}
+
+function generateSubject(deal: Deal, jobNumber: string): string {
+  const parts: string[] = [];
+  if (jobNumber) parts.push(jobNumber);
+  const desc = [deal.vehicleYear, deal.vehicleMake, deal.vehicleModel, deal.vehicleTrim, deal.bodyStyle]
+    .filter(Boolean).join(" ");
+  if (desc) parts.push(desc);
+  const colors = [deal.exteriorColor, deal.interiorColor ? `on ${deal.interiorColor.toLowerCase()}` : null]
+    .filter(Boolean).join(" ");
+  if (colors) parts.push(colors);
+  if (deal.vin) parts.push(`VIN ${deal.vin}`);
+  return parts.join(", ");
+}
+
+function generateBody(deal: Deal, manual: {
+  sellingPrice: string; currency: string; commissionAmount: string;
+  commissionFor: string; delivery: string; warehouseAddress: string; notes: string;
+}): string {
+  const cur = manual.currency;
+  const lines: string[] = [];
+  const msrp = deal.msrp ? Number(deal.msrp) : null;
+  const bp = deal.buyingPrice ? Number(deal.buyingPrice) : null;
+  const hst = deal.hst ? Number(deal.hst) : null;
+  if (msrp) lines.push(`${formatPrice(msrp, cur)} MSRP`);
+  if (bp) lines.push(`${formatPrice(bp, cur)} BUYING PRICE`);
+  if (hst) lines.push(`${formatPrice(hst, cur)} HST`);
+  if (manual.sellingPrice) {
+    const sp = parseFloat(manual.sellingPrice);
+    if (!isNaN(sp)) lines.push(`${formatPrice(sp, cur)} Selling price`);
+  }
+  if (manual.commissionAmount && manual.commissionFor) {
+    const ca = parseFloat(manual.commissionAmount);
+    if (!isNaN(ca)) lines.push(`${formatPrice(ca, cur)} for ${manual.commissionFor}`);
+  }
+  if (manual.delivery) {
+    lines.push("");
+    lines.push(`DELIVERY TO ${manual.delivery.toUpperCase()}`);
+    if (manual.warehouseAddress) lines.push(manual.warehouseAddress);
+  }
+  if (deal.clientName) { lines.push(""); lines.push(deal.clientName); }
+  if (manual.notes) lines.push(manual.notes);
+  return lines.join("\n");
 }
 
 function DocViewer({ dealId, doc }: { dealId: string; doc: DocMeta }) {
   const url = `/api/deals/${dealId}/documents/${doc.id}/content`;
   const isImage = doc.mimeType?.startsWith("image/");
-
   if (isImage) {
-    return (
-      <img
-        src={url}
-        alt={doc.filename}
-        className="w-full rounded border object-contain max-h-[400px]"
-      />
-    );
+    return <img src={url} alt={doc.filename} className="w-full rounded border object-contain max-h-[400px]" />;
   }
-
-  return (
-    <iframe
-      src={url}
-      title={doc.filename}
-      className="h-[500px] w-full rounded border"
-    />
-  );
+  return <iframe src={url} title={doc.filename} className="h-[500px] w-full rounded border" />;
 }
 
-export default function DealDetailPage() {
+export default function DealEditPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [deal, setDeal] = useState<Deal | null>(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  // Editable fields
+  const [jobNumber, setJobNumber] = useState("");
+  const [sellingPrice, setSellingPrice] = useState("");
+  const [currency, setCurrency] = useState("USD");
+  const [commissionAmount, setCommissionAmount] = useState("");
+  const [commissionFor, setCommissionFor] = useState("");
+  const [delivery, setDelivery] = useState("");
+  const [warehouseAddress, setWarehouseAddress] = useState("");
+  const [notes, setNotes] = useState("");
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     fetch(`/api/deals/${id}`)
       .then((res) => res.json())
-      .then(({ data }) => setDeal(data))
+      .then(({ data }: { data: Deal }) => {
+        setDeal(data);
+        setJobNumber(data.jobNumber ?? "");
+        setSellingPrice(data.sellingPrice ?? "");
+        setCurrency(data.currency ?? "USD");
+        setCommissionAmount(data.commissionAmount ?? "");
+        setCommissionFor(data.commissionFor ?? "");
+        setDelivery(data.deliveryDestination ?? "");
+        setWarehouseAddress(data.warehouseAddress ?? "");
+        setNotes(data.notes ?? "");
+        if (data.emailSubject) setShowPreview(true);
+      })
       .finally(() => setLoading(false));
   }, [id]);
+
+  const handleSave = useCallback(async () => {
+    if (!deal) return;
+    setSaving(true);
+
+    const subj = generateSubject(deal, jobNumber);
+    const bod = generateBody(deal, {
+      sellingPrice, currency, commissionAmount,
+      commissionFor, delivery, warehouseAddress, notes,
+    });
+
+    try {
+      const res = await fetch(`/api/deals/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jobNumber: jobNumber || null,
+          sellingPrice: sellingPrice || null,
+          currency,
+          commissionAmount: commissionAmount || null,
+          commissionFor: commissionFor || null,
+          deliveryDestination: delivery || null,
+          warehouseAddress: warehouseAddress || null,
+          notes: notes || null,
+          emailSubject: subj,
+          emailBody: bod,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to save");
+      toast.success("Draft saved");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to save");
+    } finally {
+      setSaving(false);
+    }
+  }, [deal, id, jobNumber, sellingPrice, currency, commissionAmount, commissionFor, delivery, warehouseAddress, notes]);
 
   if (loading) {
     return (
@@ -113,47 +206,32 @@ export default function DealDetailPage() {
     );
   }
 
-  const vehicleDesc = [
-    deal.vehicleYear,
-    deal.vehicleMake,
-    deal.vehicleModel,
-    deal.vehicleTrim,
-    deal.bodyStyle,
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  const stickers = deal.documents.filter(
-    (d) => d.docType === "window_sticker",
-  );
+  const vehicleDesc = [deal.vehicleYear, deal.vehicleMake, deal.vehicleModel, deal.vehicleTrim, deal.bodyStyle]
+    .filter(Boolean).join(" ");
+  const stickers = deal.documents.filter((d) => d.docType === "window_sticker");
   const invoices = deal.documents.filter((d) => d.docType === "invoice");
+
+  const subject = showPreview ? generateSubject(deal, jobNumber) : null;
+  const body = showPreview
+    ? generateBody(deal, { sellingPrice, currency, commissionAmount, commissionFor, delivery, warehouseAddress, notes })
+    : null;
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <div className="flex items-center gap-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => router.push("/deals")}
-        >
+        <Button variant="ghost" size="icon" onClick={() => router.push("/deals")}>
           <ArrowLeft className="size-4" />
         </Button>
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <h1 className="text-xl font-bold tracking-tight">
-              {deal.jobNumber && (
-                <span className="text-primary">{deal.jobNumber} </span>
-              )}
+              {deal.jobNumber && <span className="text-primary">{deal.jobNumber} </span>}
               {vehicleDesc || "Deal"}
             </h1>
-            <Badge
-              variant={deal.status === "sent" ? "default" : "secondary"}
-            >
-              {deal.status}
-            </Badge>
+            <Badge variant={deal.status === "sent" ? "default" : "secondary"}>{deal.status}</Badge>
           </div>
           <p className="text-sm text-muted-foreground">
-            Created {formatDate(deal.createdAt)}
+            Created {new Date(deal.createdAt).toLocaleDateString("en-CA", { month: "short", day: "numeric", year: "numeric" })}
           </p>
         </div>
       </div>
@@ -161,9 +239,7 @@ export default function DealDetailPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Left: Documents */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Documents</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle className="text-base">Documents</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             {stickers.map((doc, i) => (
               <div key={doc.id}>
@@ -175,142 +251,115 @@ export default function DealDetailPage() {
             ))}
             {invoices.map((doc) => (
               <div key={doc.id}>
-                <p className="mb-1 text-xs font-medium text-muted-foreground">
-                  AP Invoice
-                </p>
+                <p className="mb-1 text-xs font-medium text-muted-foreground">AP Invoice</p>
                 <DocViewer dealId={deal.id} doc={doc} />
               </div>
             ))}
             {deal.documents.length === 0 && (
-              <p className="text-sm text-muted-foreground">
-                No documents attached
-              </p>
+              <p className="text-sm text-muted-foreground">No documents attached</p>
             )}
           </CardContent>
         </Card>
 
-        {/* Right: Deal details */}
-        <div className="space-y-6">
-          {/* Vehicle */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Vehicle</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              <div>
-                <span className="text-muted-foreground">Description: </span>
-                <span className="font-medium">{vehicleDesc || "—"}</span>
+        {/* Right: Editable details */}
+        <Card>
+          <CardHeader><CardTitle className="text-base">Deal Details</CardTitle></CardHeader>
+          <CardContent className="space-y-5">
+            {/* Vehicle (read-only from extraction) */}
+            <div>
+              <h3 className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vehicle</h3>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                <div><span className="text-muted-foreground">Description: </span><span className="font-medium">{vehicleDesc || "—"}</span></div>
+                <div><span className="text-muted-foreground">VIN: </span><span className="font-mono font-medium">{deal.vin || "—"}</span></div>
+                <div><span className="text-muted-foreground">Colors: </span><span>{[deal.exteriorColor, deal.interiorColor].filter(Boolean).join(" on ") || "—"}</span></div>
+                {deal.engine && <div><span className="text-muted-foreground">Engine: </span><span>{deal.engine}</span></div>}
               </div>
-              <div>
-                <span className="text-muted-foreground">VIN: </span>
-                <span className="font-mono font-medium">
-                  {deal.vin || "—"}
-                </span>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Colors: </span>
-                <span>
-                  {[deal.exteriorColor, deal.interiorColor]
-                    .filter(Boolean)
-                    .join(" on ") || "—"}
-                </span>
-              </div>
-              {deal.engine && (
-                <div>
-                  <span className="text-muted-foreground">Engine: </span>
-                  <span>{deal.engine}</span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+            </div>
 
-          {/* Pricing */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Pricing</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-1 text-sm">
-              {deal.msrp && (
-                <div>
-                  <span className="text-muted-foreground">MSRP: </span>
-                  <span className="font-medium">
-                    ${Number(deal.msrp).toLocaleString()} {deal.currency}
-                  </span>
-                </div>
-              )}
-              {deal.buyingPrice && (
-                <div>
-                  <span className="text-muted-foreground">
-                    Buying Price:{" "}
-                  </span>
-                  <span className="font-medium">
-                    ${Number(deal.buyingPrice).toLocaleString()} {deal.currency}
-                  </span>
-                </div>
-              )}
-              {deal.hst && (
-                <div>
-                  <span className="text-muted-foreground">HST: </span>
-                  <span className="font-medium">
-                    ${Number(deal.hst).toLocaleString()} {deal.currency}
-                  </span>
-                </div>
-              )}
-              {deal.sellingPrice && (
-                <div>
-                  <span className="text-muted-foreground">
-                    Selling Price:{" "}
-                  </span>
-                  <span className="font-medium">
-                    ${Number(deal.sellingPrice).toLocaleString()}{" "}
-                    {deal.currency}
-                  </span>
-                </div>
-              )}
-              {deal.commissionAmount && deal.commissionFor && (
-                <div>
-                  <span className="text-muted-foreground">Commission: </span>
-                  <span>
-                    ${Number(deal.commissionAmount).toLocaleString()} for{" "}
-                    {deal.commissionFor}
-                  </span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+            {/* Pricing (read-only from extraction) */}
+            <div>
+              <h3 className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pricing</h3>
+              <div className="grid grid-cols-3 gap-2 text-sm">
+                <div><span className="text-muted-foreground">MSRP: </span><span className="font-medium">{deal.msrp ? formatPrice(Number(deal.msrp), currency) : "—"}</span></div>
+                <div><span className="text-muted-foreground">Buying: </span><span className="font-medium">{deal.buyingPrice ? formatPrice(Number(deal.buyingPrice), currency) : "—"}</span></div>
+                <div><span className="text-muted-foreground">HST: </span><span className="font-medium">{deal.hst ? formatPrice(Number(deal.hst), currency) : "—"}</span></div>
+              </div>
+            </div>
 
-          {/* Client */}
-          {deal.clientName && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Client</CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm space-y-1">
-                <p className="font-medium">{deal.clientName}</p>
-                {deal.clientAddress && (
-                  <p className="text-muted-foreground">
-                    {deal.clientAddress}
-                  </p>
-                )}
-                {deal.clientPhone && <p>{deal.clientPhone}</p>}
-                {deal.clientEmail && <p>{deal.clientEmail}</p>}
-              </CardContent>
-            </Card>
-          )}
-        </div>
+            {/* Client (read-only from extraction) */}
+            {deal.clientName && (
+              <div>
+                <h3 className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Client</h3>
+                <p className="text-sm font-medium">{deal.clientName}</p>
+                {deal.clientAddress && <p className="text-sm text-muted-foreground">{deal.clientAddress}</p>}
+              </div>
+            )}
+
+            {/* Editable deal terms */}
+            <div>
+              <h3 className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Deal Terms</h3>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <Label htmlFor="jobNumber" className="text-xs">Job Number</Label>
+                  <Input id="jobNumber" placeholder="26-J07674" value={jobNumber} onChange={(e) => setJobNumber(e.target.value)} />
+                </div>
+                <div>
+                  <Label htmlFor="sellingPrice" className="text-xs">Selling Price</Label>
+                  <Input id="sellingPrice" type="number" placeholder="99500" value={sellingPrice} onChange={(e) => setSellingPrice(e.target.value)} />
+                </div>
+                <div>
+                  <Label htmlFor="currency" className="text-xs">Currency</Label>
+                  <select id="currency" value={currency} onChange={(e) => setCurrency(e.target.value)}
+                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                    <option value="USD">USD</option>
+                    <option value="CAD">CAD</option>
+                  </select>
+                </div>
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="commissionAmount" className="text-xs">Commission ($)</Label>
+                  <Input id="commissionAmount" type="number" placeholder="1000" value={commissionAmount} onChange={(e) => setCommissionAmount(e.target.value)} />
+                </div>
+                <div>
+                  <Label htmlFor="commissionFor" className="text-xs">Commission For</Label>
+                  <Input id="commissionFor" placeholder="Sergey" value={commissionFor} onChange={(e) => setCommissionFor(e.target.value)} />
+                </div>
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="delivery" className="text-xs">Delivery To</Label>
+                  <Input id="delivery" placeholder="Vancouver" value={delivery} onChange={(e) => setDelivery(e.target.value)} />
+                </div>
+                <div>
+                  <Label htmlFor="warehouseAddress" className="text-xs">Warehouse Address</Label>
+                  <Input id="warehouseAddress" placeholder="12431 Horseshoe Way, Richmond, BC" value={warehouseAddress} onChange={(e) => setWarehouseAddress(e.target.value)} />
+                </div>
+              </div>
+              <div className="mt-3">
+                <Label htmlFor="notes" className="text-xs">Notes</Label>
+                <Textarea id="notes" placeholder="Please see instructions in invoice" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
+              </div>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex justify-center gap-3 pt-2">
+              <Button size="lg" onClick={() => setShowPreview(true)}>Preview Email</Button>
+              <Button size="lg" variant="outline" onClick={handleSave} disabled={saving} className="gap-2">
+                {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
+                Save Draft
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Email */}
-      {deal.emailSubject && deal.emailBody && (
+      {/* Email Preview */}
+      {subject && body && (
         <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Email</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle className="text-base">Email Preview</CardTitle></CardHeader>
           <CardContent>
-            <EmailPreview
-              subject={deal.emailSubject}
-              body={deal.emailBody}
-            />
+            <EmailPreview subject={subject} body={body} />
           </CardContent>
         </Card>
       )}
