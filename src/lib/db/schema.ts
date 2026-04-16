@@ -190,6 +190,7 @@ export const deals = pgTable("deals", {
   interiorColor: varchar("interior_color", { length: 100 }),
   engine: varchar("engine", { length: 200 }),
   vin: varchar("vin", { length: 17 }),
+  odometer: integer("odometer"),
   // Pricing
   msrp: numeric("msrp", { precision: 12, scale: 2 }),
   buyingPrice: numeric("buying_price", { precision: 12, scale: 2 }),

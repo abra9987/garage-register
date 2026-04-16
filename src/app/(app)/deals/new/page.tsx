@@ -100,6 +100,7 @@ export default function NewDealPage() {
   const [clientAddress, setClientAddress] = useState("");
   const [clientPhone, setClientPhone] = useState("");
   const [clientEmail, setClientEmail] = useState("");
+  const [clientFromDb, setClientFromDb] = useState(false);
 
   // Manual-only fields
   const [jobNumber, setJobNumber] = useState("");
@@ -220,7 +221,7 @@ export default function NewDealPage() {
     setVehicleYear(""); setVehicleMake(""); setVehicleModel(""); setVehicleTrim("");
     setBodyStyle(""); setExteriorColor(""); setInteriorColor(""); setMileage("");
     setVin(""); setMsrp(""); setBuyingPrice(""); setHst("");
-    setClientName(""); setClientAddress(""); setClientPhone(""); setClientEmail("");
+    setClientName(""); setClientAddress(""); setClientPhone(""); setClientEmail(""); setClientFromDb(false);
     setJobNumber(""); setSellingPrice(""); setCurrency("USD");
     setCommissionAmount(""); setCommissionFor(""); setDelivery(""); setWarehouseAddress(""); setNotes("");
   }, []);
@@ -380,6 +381,7 @@ export default function NewDealPage() {
                       if (c.address) setClientAddress(c.address);
                       if (c.phone) setClientPhone(c.phone);
                       if (c.email) setClientEmail(c.email);
+                      setClientFromDb(true);
                     }}
                   />
                 </div>
@@ -388,11 +390,12 @@ export default function NewDealPage() {
                     <Label className="text-xs">Name</Label>
                     <ClientAutocomplete
                       value={clientName}
-                      onChange={setClientName}
+                      onChange={(v) => { setClientName(v); setClientFromDb(false); }}
                       onSelect={(c) => {
                         if (c.address) setClientAddress(c.address);
                         if (c.phone) setClientPhone(c.phone);
                         if (c.email) setClientEmail(c.email);
+                        setClientFromDb(true);
                       }}
                     />
                   </div>
@@ -409,6 +412,35 @@ export default function NewDealPage() {
                     <Input value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} />
                   </div>
                 </div>
+                {clientName && !clientFromDb && (
+                  <Button
+                    type="button"
+                    variant="link"
+                    size="sm"
+                    className="mt-2 h-auto p-0 text-xs"
+                    onClick={async () => {
+                      try {
+                        const res = await fetch("/api/clients", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            name: clientName,
+                            address: clientAddress || null,
+                            phone: clientPhone || null,
+                            email: clientEmail || null,
+                          }),
+                        });
+                        if (!res.ok) throw new Error();
+                        setClientFromDb(true);
+                        toast.success("Client saved");
+                      } catch {
+                        toast.error("Failed to save client");
+                      }
+                    }}
+                  >
+                    + Save as new client
+                  </Button>
+                )}
               </div>
 
               {/* Deal details */}

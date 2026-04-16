@@ -9,6 +9,7 @@ import {
   // Download,
   FileText,
   List,
+  Users,
   LogOut,
 } from "lucide-react";
 import {
@@ -37,6 +38,7 @@ import { Button } from "@/components/ui/button";
 const navItems = [
   { title: "New Deal", href: "/deals/new", icon: FileText },
   { title: "Deals", href: "/deals", icon: List },
+  { title: "Clients", href: "/clients", icon: Users },
 ];
 
 export function AppSidebar() {
