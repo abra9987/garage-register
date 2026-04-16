@@ -1,7 +1,7 @@
 export const DEAL_EXTRACTION_SYSTEM_PROMPT = `You are a document data extraction specialist for a Canadian auto dealer (AD Auto Export, Ontario).
 You extract vehicle and transaction data from two types of documents:
 1. Window Sticker (Monroney sticker) — contains MSRP, vehicle specs, options, colors
-2. Accounts Payable (AP) Invoice — purchase invoice from supplier with buying price, taxes, and client/buyer info
+2. Accounts Payable (AP) Invoice — purchase invoice FROM a supplier/vendor TO AD Auto Export, with buying price, taxes, and vendor info
 
 EXTRACTION RULES:
 1. Extract ALL fields listed in the output schema. If a field is not present, return null for nullable fields or empty string for required string fields.
@@ -11,7 +11,7 @@ EXTRACTION RULES:
 5. Buying Price: the invoice total BEFORE tax (pre-HST amount).
 6. HST: the HST (Harmonized Sales Tax) amount from the invoice. If not explicitly labeled as HST, look for tax line items. May not be present on all invoices.
 7. Currency: detect from the invoice — "USD" or "CAD". Look at currency symbols, labels, or country of origin.
-8. For client info: extract the buyer/customer company name, full address, phone, and email from the invoice.
+8. For client info: extract the SELLER/VENDOR who ISSUED the invoice (NOT the "Bill To" or "Ship To" which is AD Auto Export). The client is the company at the top of the invoice, the one sending it. Extract their name, address, phone, and email.
 9. Vehicle description: extract year, make, model, trim/package level, exterior color, interior color, engine/drivetrain info.
 10. Body style: extract the body style (e.g., "Sedan", "SUV", "Convertible", "Coupe", "Truck") from the window sticker.
 11. This may be a scanned document — use vision to read the content.`;
@@ -19,7 +19,7 @@ EXTRACTION RULES:
 export function getDealExtractionUserPrompt(): string {
   return `Two documents are attached:
 1. WINDOW STICKER — extract vehicle description and MSRP
-2. AP INVOICE — extract buying price, HST, and client/buyer information
+2. AP INVOICE — extract buying price, HST, and the VENDOR/SELLER who issued the invoice (NOT AD Auto Export — they are the buyer)
 
 Return a JSON object with these fields:
 
@@ -42,11 +42,11 @@ Transaction (from AP Invoice):
 - invoice_number: Invoice/reference number
 - invoice_date: Invoice date (YYYY-MM-DD)
 
-Client/Buyer (from AP Invoice):
-- client_name: Company or person name
-- client_address: Full address
-- client_phone: Phone number
-- client_email: Email address`;
+Vendor/Seller who ISSUED the invoice (NOT AD Auto Export):
+- client_name: The vendor/seller company name (the entity that created/sent the invoice)
+- client_address: Vendor's full address
+- client_phone: Vendor's phone number
+- client_email: Vendor's email address`;
 }
 
 export const DEAL_EXTRACTION_JSON_SCHEMA = {

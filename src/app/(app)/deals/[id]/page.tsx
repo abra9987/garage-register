@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { ArrowLeft, Loader2, Save, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -123,6 +123,7 @@ export default function DealEditPage() {
   const [deal, setDeal] = useState<Deal | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Editable fields
   const [jobNumber, setJobNumber] = useState("");
@@ -189,6 +190,21 @@ export default function DealEditPage() {
     }
   }, [deal, id, jobNumber, sellingPrice, currency, commissionAmount, commissionFor, delivery, warehouseAddress, notes]);
 
+  const handleDelete = useCallback(async () => {
+    if (!confirm("Delete this deal? This cannot be undone.")) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/deals/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete");
+      toast.success("Deal deleted");
+      router.push("/deals");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to delete");
+    } finally {
+      setDeleting(false);
+    }
+  }, [id, router]);
+
   if (loading) {
     return (
       <div className="mx-auto max-w-5xl space-y-6">
@@ -234,6 +250,15 @@ export default function DealEditPage() {
             Created {new Date(deal.createdAt).toLocaleDateString("en-CA", { month: "short", day: "numeric", year: "numeric" })}
           </p>
         </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleDelete}
+          disabled={deleting}
+          className="text-destructive hover:text-destructive"
+        >
+          {deleting ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -323,22 +348,22 @@ export default function DealEditPage() {
                 </div>
                 <div>
                   <Label htmlFor="commissionFor" className="text-xs">Commission For</Label>
-                  <Input id="commissionFor" placeholder="Sergey" value={commissionFor} onChange={(e) => setCommissionFor(e.target.value)} />
+                  <Input id="commissionFor" placeholder="Name" value={commissionFor} onChange={(e) => setCommissionFor(e.target.value)} />
                 </div>
               </div>
               <div className="mt-3 grid grid-cols-2 gap-3">
                 <div>
                   <Label htmlFor="delivery" className="text-xs">Delivery To</Label>
-                  <Input id="delivery" placeholder="Vancouver" value={delivery} onChange={(e) => setDelivery(e.target.value)} />
+                  <Input id="delivery" placeholder="City" value={delivery} onChange={(e) => setDelivery(e.target.value)} />
                 </div>
                 <div>
                   <Label htmlFor="warehouseAddress" className="text-xs">Warehouse Address</Label>
-                  <Input id="warehouseAddress" placeholder="12431 Horseshoe Way, Richmond, BC" value={warehouseAddress} onChange={(e) => setWarehouseAddress(e.target.value)} />
+                  <Input id="warehouseAddress" placeholder="Full address" value={warehouseAddress} onChange={(e) => setWarehouseAddress(e.target.value)} />
                 </div>
               </div>
               <div className="mt-3">
                 <Label htmlFor="notes" className="text-xs">Notes</Label>
-                <Textarea id="notes" placeholder="Please see instructions in invoice" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
+                <Textarea id="notes" placeholder="Additional notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
               </div>
             </div>
 

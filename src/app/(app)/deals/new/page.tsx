@@ -570,7 +570,7 @@ export default function NewDealPage() {
                     </Label>
                     <Input
                       id="commissionFor"
-                      placeholder="Sergey"
+                      placeholder="Name"
                       value={commissionFor}
                       onChange={(e) => setCommissionFor(e.target.value)}
                     />
@@ -583,7 +583,7 @@ export default function NewDealPage() {
                     </Label>
                     <Input
                       id="delivery"
-                      placeholder="Vancouver"
+                      placeholder="City"
                       value={delivery}
                       onChange={(e) => setDelivery(e.target.value)}
                     />
@@ -594,7 +594,7 @@ export default function NewDealPage() {
                     </Label>
                     <Input
                       id="warehouseAddress"
-                      placeholder="12431 Horseshoe Way, Richmond, BC"
+                      placeholder="Full address"
                       value={warehouseAddress}
                       onChange={(e) => setWarehouseAddress(e.target.value)}
                     />
@@ -606,7 +606,7 @@ export default function NewDealPage() {
                   </Label>
                   <Textarea
                     id="notes"
-                    placeholder="Please see instructions in invoice"
+                    placeholder="Additional notes"
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     rows={2}

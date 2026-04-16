@@ -66,3 +66,29 @@ export async function PUT(
 
   return NextResponse.json({ data: updated });
 }
+
+// DELETE /api/deals/[id] — delete deal and its documents
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id } = await params;
+
+  // Delete documents first (FK constraint)
+  await db.delete(dealDocuments).where(eq(dealDocuments.dealId, id));
+  const [deleted] = await db
+    .delete(deals)
+    .where(eq(deals.id, id))
+    .returning({ id: deals.id });
+
+  if (!deleted) {
+    return NextResponse.json({ error: "Deal not found" }, { status: 404 });
+  }
+
+  return NextResponse.json({ data: { id: deleted.id } });
+}
