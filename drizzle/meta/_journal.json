@@ -15,6 +15,13 @@
       "when": 1776305429555,
       "tag": "0001_smart_lightspeed",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1776310960222,
+      "tag": "0002_careful_pride",
+      "breakpoints": true
     }
   ]
 }

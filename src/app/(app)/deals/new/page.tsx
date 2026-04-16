@@ -12,6 +12,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropZone } from "@/components/upload/drop-zone";
 import { MultiDropZone } from "@/components/deals/multi-drop-zone";
 import { EmailPreviewDialog } from "@/components/deals/email-preview";
+import { ClientAutocomplete } from "@/components/deals/client-autocomplete";
+import { ClientManager } from "@/components/deals/client-manager";
 
 function fmtPrice(value: string, cur: string): string {
   const n = parseFloat(value);
@@ -53,8 +55,15 @@ function genBody(f: Record<string, string>): string {
     lines.push(`DELIVERY TO ${f.delivery.toUpperCase()}`);
     if (f.warehouseAddress) lines.push(f.warehouseAddress);
   }
-  if (f.clientName) { lines.push(""); lines.push(f.clientName); }
-  if (f.notes) lines.push(f.notes);
+  if (f.clientName) {
+    lines.push("");
+    lines.push("Invoice to:");
+    lines.push(f.clientName);
+    if (f.clientAddress) lines.push(f.clientAddress);
+    if (f.clientPhone) lines.push(f.clientPhone);
+    if (f.clientEmail) lines.push(f.clientEmail);
+  }
+  if (f.notes) { lines.push(""); lines.push(f.notes); }
   return lines.join("\n");
 }
 
@@ -107,7 +116,7 @@ export default function NewDealPage() {
     jobNumber, vehicleYear, vehicleMake, vehicleModel, vehicleTrim, bodyStyle,
     exteriorColor, interiorColor, vin, mileage, msrp, buyingPrice, hst,
     sellingPrice, currency, commissionAmount, commissionFor, delivery,
-    warehouseAddress, clientName, notes,
+    warehouseAddress, clientName, clientAddress, clientPhone, clientEmail, notes,
   };
 
   const handleExtract = useCallback(async () => {
@@ -363,11 +372,29 @@ export default function NewDealPage() {
 
               {/* Client */}
               <div>
-                <h3 className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Client</h3>
+                <div className="mb-2 flex items-center justify-between">
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Client</h3>
+                  <ClientManager
+                    onSelect={(c) => {
+                      setClientName(c.name);
+                      if (c.address) setClientAddress(c.address);
+                      if (c.phone) setClientPhone(c.phone);
+                      if (c.email) setClientEmail(c.email);
+                    }}
+                  />
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label className="text-xs">Name</Label>
-                    <Input value={clientName} onChange={(e) => setClientName(e.target.value)} />
+                    <ClientAutocomplete
+                      value={clientName}
+                      onChange={setClientName}
+                      onSelect={(c) => {
+                        if (c.address) setClientAddress(c.address);
+                        if (c.phone) setClientPhone(c.phone);
+                        if (c.email) setClientEmail(c.email);
+                      }}
+                    />
                   </div>
                   <div>
                     <Label className="text-xs">Address</Label>

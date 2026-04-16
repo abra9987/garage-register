@@ -152,6 +152,22 @@ export const documents = pgTable("documents", {
   extractionRaw: jsonb("extraction_raw"),
 });
 
+// ---- Clients ----
+
+export const clients = pgTable("clients", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  address: text("address"),
+  phone: varchar("phone", { length: 50 }),
+  email: varchar("email", { length: 255 }),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
 // ---- Deal Filing ----
 
 export const dealStatusEnum = pgEnum("deal_status", ["draft", "sent"]);
