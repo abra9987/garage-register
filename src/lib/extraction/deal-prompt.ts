@@ -4,7 +4,7 @@ You extract vehicle and transaction data from two types of documents:
 2. Accounts Payable (AP) Invoice — purchase invoice from supplier with buying price, taxes, and client/buyer info
 
 EXTRACTION RULES:
-1. Extract ALL fields listed in the output schema. If a field is not present, return null.
+1. Extract ALL fields listed in the output schema. If a field is not present, return null for nullable fields or empty string for required string fields.
 2. VIN must be exactly 17 characters (letters A-H, J-N, P, R-Z and digits 0-9; no I, O, Q).
 3. Prices must be numeric values only — no currency symbols, no commas.
 4. MSRP: total MSRP from the window sticker (the final total, including destination charge if shown separately on the sticker).
@@ -55,18 +55,18 @@ export const DEAL_EXTRACTION_JSON_SCHEMA = {
     type: "object",
     properties: {
       vehicle_year: { anyOf: [{ type: "number" }, { type: "null" }] },
-      vehicle_make: { anyOf: [{ type: "string" }, { type: "null" }] },
-      vehicle_model: { anyOf: [{ type: "string" }, { type: "null" }] },
+      vehicle_make: { type: "string" },
+      vehicle_model: { type: "string" },
       vehicle_trim: { anyOf: [{ type: "string" }, { type: "null" }] },
       body_style: { anyOf: [{ type: "string" }, { type: "null" }] },
       exterior_color: { anyOf: [{ type: "string" }, { type: "null" }] },
       interior_color: { anyOf: [{ type: "string" }, { type: "null" }] },
       engine: { anyOf: [{ type: "string" }, { type: "null" }] },
-      vin: { anyOf: [{ type: "string" }, { type: "null" }] },
+      vin: { type: "string" },
       msrp: { anyOf: [{ type: "number" }, { type: "null" }] },
       buying_price: { anyOf: [{ type: "number" }, { type: "null" }] },
       hst: { anyOf: [{ type: "number" }, { type: "null" }] },
-      currency: { anyOf: [{ type: "string" }, { type: "null" }] },
+      currency: { type: "string" },
       invoice_number: { anyOf: [{ type: "string" }, { type: "null" }] },
       invoice_date: { anyOf: [{ type: "string" }, { type: "null" }] },
       client_name: { anyOf: [{ type: "string" }, { type: "null" }] },
