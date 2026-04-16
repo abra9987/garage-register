@@ -216,7 +216,7 @@ export default function NewDealPage() {
         }),
       });
       toast.success("Deal saved");
-      router.push("/deals");
+      router.push(`/deals/${id}`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to save");
     } finally {

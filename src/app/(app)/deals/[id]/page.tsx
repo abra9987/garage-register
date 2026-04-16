@@ -12,6 +12,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmailPreviewDialog } from "@/components/deals/email-preview";
+import { ClientAutocomplete } from "@/components/deals/client-autocomplete";
+import { ClientManager } from "@/components/deals/client-manager";
+import { WarehouseAutocomplete } from "@/components/deals/warehouse-autocomplete";
+import { WarehouseManager } from "@/components/deals/warehouse-manager";
 
 interface DocMeta {
   id: string;
@@ -51,20 +55,33 @@ function genSubject(f: Record<string, string>): string {
 }
 
 function genBody(f: Record<string, string>): string {
-  const cur = f.currency || "CAD";
+  const buyCur = f.currency || "CAD";
+  const sellCur = f.sellingCurrency || "USD";
   const lines: string[] = [];
-  if (f.msrp) lines.push(`${fmtPrice(f.msrp, cur)} MSRP`);
-  if (f.buyingPrice) lines.push(`${fmtPrice(f.buyingPrice, cur)} BUYING PRICE`);
-  if (f.hst) lines.push(`${fmtPrice(f.hst, cur)} HST`);
-  if (f.sellingPrice) lines.push(`${fmtPrice(f.sellingPrice, cur)} Selling price`);
+  if (f.msrp) lines.push(`${fmtPrice(f.msrp, buyCur)} MSRP`);
+  if (f.buyingPrice) lines.push(`${fmtPrice(f.buyingPrice, buyCur)} BUYING PRICE`);
+  if (f.hst) lines.push(`${fmtPrice(f.hst, buyCur)} HST`);
+  if (f.sellingPrice) lines.push(`${fmtPrice(f.sellingPrice, sellCur)} Selling price`);
   if (f.commissionAmount && f.commissionFor)
-    lines.push(`${fmtPrice(f.commissionAmount, cur)} for ${f.commissionFor} (included)`);
+    lines.push(`${fmtPrice(f.commissionAmount, sellCur)} for ${f.commissionFor} (included)`);
   if (f.delivery) {
-    lines.push(""); lines.push(`DELIVERY TO ${f.delivery.toUpperCase()}`);
+    lines.push("");
+    lines.push(`DELIVERY TO ${f.delivery.toUpperCase()}`);
     if (f.warehouseAddress) lines.push(f.warehouseAddress);
   }
-  if (f.clientName) { lines.push(""); lines.push(f.clientName); }
-  if (f.notes) lines.push(f.notes);
+  if (f.clientName) {
+    lines.push("");
+    lines.push("Invoice to:");
+    lines.push(f.clientName);
+    if (f.clientAddress) lines.push(f.clientAddress);
+    if (f.clientPhone) lines.push(f.clientPhone);
+    if (f.clientEmail) lines.push(f.clientEmail);
+  }
+  if (f.notes) {
+    lines.push("");
+    lines.push("Notes:");
+    lines.push(f.notes);
+  }
   return lines.join("\n");
 }
 
@@ -84,7 +101,6 @@ export default function DealEditPage() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  // All editable fields
   const [vehicleYear, setVehicleYear] = useState("");
   const [vehicleMake, setVehicleMake] = useState("");
   const [vehicleModel, setVehicleModel] = useState("");
@@ -101,21 +117,24 @@ export default function DealEditPage() {
   const [clientAddress, setClientAddress] = useState("");
   const [clientPhone, setClientPhone] = useState("");
   const [clientEmail, setClientEmail] = useState("");
+  const [clientFromDb, setClientFromDb] = useState(false);
   const [jobNumber, setJobNumber] = useState("");
   const [sellingPrice, setSellingPrice] = useState("");
   const [currency, setCurrency] = useState("CAD");
+  const [sellingCurrency, setSellingCurrency] = useState("USD");
   const [commissionAmount, setCommissionAmount] = useState("");
   const [commissionFor, setCommissionFor] = useState("");
   const [delivery, setDelivery] = useState("");
   const [warehouseAddress, setWarehouseAddress] = useState("");
+  const [warehouseFromDb, setWarehouseFromDb] = useState(false);
   const [notes, setNotes] = useState("");
   const [showPreview, setShowPreview] = useState(false);
 
   const allFields: Record<string, string> = {
     jobNumber, vehicleYear, vehicleMake, vehicleModel, vehicleTrim, bodyStyle,
     exteriorColor, interiorColor, vin, mileage, msrp, buyingPrice, hst,
-    sellingPrice, currency, commissionAmount, commissionFor, delivery,
-    warehouseAddress, clientName, notes,
+    sellingPrice, currency, sellingCurrency, commissionAmount, commissionFor, delivery,
+    warehouseAddress, clientName, clientAddress, clientPhone, clientEmail, notes,
   };
 
   useEffect(() => {
@@ -142,12 +161,14 @@ export default function DealEditPage() {
         setJobNumber(data.jobNumber ?? "");
         setSellingPrice(data.sellingPrice ?? "");
         setCurrency(data.currency ?? "CAD");
+        setSellingCurrency(data.sellingCurrency ?? "USD");
         setCommissionAmount(data.commissionAmount ?? "");
         setCommissionFor(data.commissionFor ?? "");
         setDelivery(data.deliveryDestination ?? "");
         setWarehouseAddress(data.warehouseAddress ?? "");
         setNotes(data.notes ?? "");
-        if (data.emailSubject) setShowPreview(true);
+        if (data.clientName) setClientFromDb(true);
+        if (data.deliveryDestination) setWarehouseFromDb(true);
       })
       .finally(() => setLoading(false));
   }, [id]);
@@ -175,6 +196,7 @@ export default function DealEditPage() {
           hst: hst || null,
           sellingPrice: sellingPrice || null,
           currency,
+          sellingCurrency,
           commissionAmount: commissionAmount || null,
           commissionFor: commissionFor || null,
           deliveryDestination: delivery || null,
@@ -189,13 +211,13 @@ export default function DealEditPage() {
         }),
       });
       if (!res.ok) throw new Error("Failed to save");
-      toast.success("Draft saved");
+      toast.success("Saved");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to save");
     } finally {
       setSaving(false);
     }
-  }, [deal, id, allFields, jobNumber, vehicleYear, vehicleMake, vehicleModel, vehicleTrim, bodyStyle, exteriorColor, interiorColor, vin, mileage, msrp, buyingPrice, hst, sellingPrice, currency, commissionAmount, commissionFor, delivery, warehouseAddress, clientName, clientAddress, clientPhone, clientEmail, notes]);
+  }, [deal, id, allFields, jobNumber, vehicleYear, vehicleMake, vehicleModel, vehicleTrim, bodyStyle, exteriorColor, interiorColor, vin, mileage, msrp, buyingPrice, hst, sellingPrice, currency, sellingCurrency, commissionAmount, commissionFor, delivery, warehouseAddress, clientName, clientAddress, clientPhone, clientEmail, notes]);
 
   const handleDelete = useCallback(async () => {
     if (!confirm("Delete this deal? This cannot be undone.")) return;
@@ -222,9 +244,6 @@ export default function DealEditPage() {
   const stickers = deal.documents.filter((d) => d.docType === "window_sticker");
   const invoices = deal.documents.filter((d) => d.docType === "invoice");
   const vehicleDesc = [vehicleYear, vehicleMake, vehicleModel, vehicleTrim, bodyStyle].filter(Boolean).join(" ");
-
-  const subject = showPreview ? genSubject(allFields) : null;
-  const body = showPreview ? genBody(allFields) : null;
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -272,6 +291,7 @@ export default function DealEditPage() {
         <Card>
           <CardHeader><CardTitle className="text-base">Deal Details</CardTitle></CardHeader>
           <CardContent className="space-y-5">
+            {/* Vehicle */}
             <div>
               <h3 className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vehicle</h3>
               <div className="grid grid-cols-4 gap-3">
@@ -291,6 +311,7 @@ export default function DealEditPage() {
               </div>
             </div>
 
+            {/* Pricing */}
             <div>
               <h3 className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pricing</h3>
               <div className="grid grid-cols-4 gap-3">
@@ -298,40 +319,119 @@ export default function DealEditPage() {
                 <div><Label className="text-xs">Buying Price</Label><Input type="number" value={buyingPrice} onChange={(e) => setBuyingPrice(e.target.value)} /></div>
                 <div><Label className="text-xs">HST</Label><Input type="number" value={hst} onChange={(e) => setHst(e.target.value)} /></div>
                 <div>
-                  <Label className="text-xs">Currency</Label>
+                  <Label className="text-xs">Buy Currency</Label>
                   <select value={currency} onChange={(e) => setCurrency(e.target.value)}
                     className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
                     <option value="CAD">CAD</option><option value="USD">USD</option>
                   </select>
                 </div>
               </div>
-              <div className="mt-3 grid grid-cols-3 gap-3">
+              <div className="mt-3 grid grid-cols-4 gap-3">
                 <div><Label className="text-xs">Selling Price</Label><Input type="number" value={sellingPrice} onChange={(e) => setSellingPrice(e.target.value)} /></div>
+                <div>
+                  <Label className="text-xs">Sell Currency</Label>
+                  <select value={sellingCurrency} onChange={(e) => setSellingCurrency(e.target.value)}
+                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                    <option value="USD">USD</option><option value="CAD">CAD</option>
+                  </select>
+                </div>
                 <div><Label className="text-xs">Commission ($)</Label><Input type="number" value={commissionAmount} onChange={(e) => setCommissionAmount(e.target.value)} /></div>
                 <div><Label className="text-xs">Commission For</Label><Input placeholder="Name" value={commissionFor} onChange={(e) => setCommissionFor(e.target.value)} /></div>
               </div>
             </div>
 
+            {/* Client */}
             <div>
-              <h3 className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Client</h3>
+              <div className="mb-2 flex items-center justify-between">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Client</h3>
+                <ClientManager
+                  onSelect={(c) => {
+                    setClientName(c.name);
+                    if (c.address) setClientAddress(c.address);
+                    if (c.phone) setClientPhone(c.phone);
+                    if (c.email) setClientEmail(c.email);
+                    setClientFromDb(true);
+                  }}
+                />
+              </div>
               <div className="grid grid-cols-2 gap-3">
-                <div><Label className="text-xs">Name</Label><Input value={clientName} onChange={(e) => setClientName(e.target.value)} /></div>
+                <div>
+                  <Label className="text-xs">Name</Label>
+                  <ClientAutocomplete
+                    value={clientName}
+                    onChange={(v) => { setClientName(v); setClientFromDb(false); }}
+                    onSelect={(c) => {
+                      if (c.address) setClientAddress(c.address);
+                      if (c.phone) setClientPhone(c.phone);
+                      if (c.email) setClientEmail(c.email);
+                      setClientFromDb(true);
+                    }}
+                  />
+                </div>
                 <div><Label className="text-xs">Address</Label><Input value={clientAddress} onChange={(e) => setClientAddress(e.target.value)} /></div>
                 <div><Label className="text-xs">Phone</Label><Input value={clientPhone} onChange={(e) => setClientPhone(e.target.value)} /></div>
                 <div><Label className="text-xs">Email</Label><Input value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} /></div>
               </div>
+              {clientName && !clientFromDb && (
+                <Button type="button" variant="link" size="sm" className="mt-2 h-auto p-0 text-xs"
+                  onClick={async () => {
+                    try {
+                      const res = await fetch("/api/clients", {
+                        method: "POST", headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ name: clientName, address: clientAddress || null, phone: clientPhone || null, email: clientEmail || null }),
+                      });
+                      if (!res.ok) throw new Error();
+                      setClientFromDb(true);
+                      toast.success("Client saved");
+                    } catch { toast.error("Failed to save client"); }
+                  }}
+                >+ Save as new client</Button>
+              )}
             </div>
 
+            {/* Deal */}
             <div>
-              <h3 className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Deal</h3>
+              <div className="mb-2 flex items-center justify-between">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Deal</h3>
+                <WarehouseManager
+                  onSelect={(w) => {
+                    setDelivery(w.name);
+                    if (w.address) setWarehouseAddress(w.address);
+                    setWarehouseFromDb(true);
+                  }}
+                />
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 <div><Label className="text-xs">Job Number</Label><Input placeholder="26-J07674" value={jobNumber} onChange={(e) => setJobNumber(e.target.value)} /></div>
-                <div><Label className="text-xs">Delivery To</Label><Input placeholder="City" value={delivery} onChange={(e) => setDelivery(e.target.value)} /></div>
+                <div>
+                  <Label className="text-xs">Delivery To</Label>
+                  <WarehouseAutocomplete
+                    value={delivery}
+                    onChange={(v) => { setDelivery(v); setWarehouseFromDb(false); }}
+                    onSelect={(w) => { if (w.address) setWarehouseAddress(w.address); setWarehouseFromDb(true); }}
+                    placeholder="City or warehouse name"
+                  />
+                </div>
               </div>
               <div className="mt-3">
                 <Label className="text-xs">Warehouse Address</Label>
                 <Input placeholder="Full address" value={warehouseAddress} onChange={(e) => setWarehouseAddress(e.target.value)} />
               </div>
+              {delivery && !warehouseFromDb && (
+                <Button type="button" variant="link" size="sm" className="mt-2 h-auto p-0 text-xs"
+                  onClick={async () => {
+                    try {
+                      const res = await fetch("/api/warehouses", {
+                        method: "POST", headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ name: delivery, address: warehouseAddress || null }),
+                      });
+                      if (!res.ok) throw new Error();
+                      setWarehouseFromDb(true);
+                      toast.success("Warehouse saved");
+                    } catch { toast.error("Failed to save warehouse"); }
+                  }}
+                >+ Save as new warehouse</Button>
+              )}
               <div className="mt-3">
                 <Label className="text-xs">Notes</Label>
                 <Textarea placeholder="Additional notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
@@ -342,7 +442,7 @@ export default function DealEditPage() {
               <Button size="lg" onClick={() => setShowPreview(true)}>Preview Email</Button>
               <Button size="lg" variant="outline" onClick={handleSave} disabled={saving} className="gap-2">
                 {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
-                Save Draft
+                Save
               </Button>
             </div>
           </CardContent>
