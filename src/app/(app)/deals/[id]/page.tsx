@@ -45,6 +45,7 @@ function genSubject(f: Record<string, string>): string {
   if (desc) parts.push(desc);
   const colors = [f.exteriorColor, f.interiorColor ? `on ${f.interiorColor.toLowerCase()}` : ""].filter(Boolean).join(" ");
   if (colors) parts.push(colors);
+  if (f.mileage) parts.push(`${Number(f.mileage).toLocaleString()} km`);
   if (f.vin) parts.push(`VIN ${f.vin}`);
   return parts.join(", ");
 }
@@ -52,8 +53,6 @@ function genSubject(f: Record<string, string>): string {
 function genBody(f: Record<string, string>): string {
   const cur = f.currency || "CAD";
   const lines: string[] = [];
-  if (f.mileage) lines.push(`${Number(f.mileage).toLocaleString()} km`);
-  lines.push("");
   if (f.msrp) lines.push(`${fmtPrice(f.msrp, cur)} MSRP`);
   if (f.buyingPrice) lines.push(`${fmtPrice(f.buyingPrice, cur)} BUYING PRICE`);
   if (f.hst) lines.push(`${fmtPrice(f.hst, cur)} HST`);
