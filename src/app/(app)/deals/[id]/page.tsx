@@ -50,8 +50,10 @@ function genSubject(f: Record<string, string>): string {
 }
 
 function genBody(f: Record<string, string>): string {
-  const cur = f.currency || "USD";
+  const cur = f.currency || "CAD";
   const lines: string[] = [];
+  if (f.mileage) lines.push(`${Number(f.mileage).toLocaleString()} km`);
+  lines.push("");
   if (f.msrp) lines.push(`${fmtPrice(f.msrp, cur)} MSRP`);
   if (f.buyingPrice) lines.push(`${fmtPrice(f.buyingPrice, cur)} BUYING PRICE`);
   if (f.hst) lines.push(`${fmtPrice(f.hst, cur)} HST`);
@@ -91,8 +93,8 @@ export default function DealEditPage() {
   const [bodyStyle, setBodyStyle] = useState("");
   const [exteriorColor, setExteriorColor] = useState("");
   const [interiorColor, setInteriorColor] = useState("");
-  const [engine, setEngine] = useState("");
   const [vin, setVin] = useState("");
+  const [mileage, setMileage] = useState("");
   const [msrp, setMsrp] = useState("");
   const [buyingPrice, setBuyingPrice] = useState("");
   const [hst, setHst] = useState("");
@@ -102,7 +104,7 @@ export default function DealEditPage() {
   const [clientEmail, setClientEmail] = useState("");
   const [jobNumber, setJobNumber] = useState("");
   const [sellingPrice, setSellingPrice] = useState("");
-  const [currency, setCurrency] = useState("USD");
+  const [currency, setCurrency] = useState("CAD");
   const [commissionAmount, setCommissionAmount] = useState("");
   const [commissionFor, setCommissionFor] = useState("");
   const [delivery, setDelivery] = useState("");
@@ -112,7 +114,7 @@ export default function DealEditPage() {
 
   const allFields: Record<string, string> = {
     jobNumber, vehicleYear, vehicleMake, vehicleModel, vehicleTrim, bodyStyle,
-    exteriorColor, interiorColor, engine, vin, msrp, buyingPrice, hst,
+    exteriorColor, interiorColor, vin, mileage, msrp, buyingPrice, hst,
     sellingPrice, currency, commissionAmount, commissionFor, delivery,
     warehouseAddress, clientName, notes,
   };
@@ -129,8 +131,8 @@ export default function DealEditPage() {
         setBodyStyle(data.bodyStyle ?? "");
         setExteriorColor(data.exteriorColor ?? "");
         setInteriorColor(data.interiorColor ?? "");
-        setEngine(data.engine ?? "");
         setVin(data.vin ?? "");
+        setMileage(data.odometer?.toString() ?? "");
         setMsrp(data.msrp ?? "");
         setBuyingPrice(data.buyingPrice ?? "");
         setHst(data.hst ?? "");
@@ -140,7 +142,7 @@ export default function DealEditPage() {
         setClientEmail(data.clientEmail ?? "");
         setJobNumber(data.jobNumber ?? "");
         setSellingPrice(data.sellingPrice ?? "");
-        setCurrency(data.currency ?? "USD");
+        setCurrency(data.currency ?? "CAD");
         setCommissionAmount(data.commissionAmount ?? "");
         setCommissionFor(data.commissionFor ?? "");
         setDelivery(data.deliveryDestination ?? "");
@@ -167,8 +169,8 @@ export default function DealEditPage() {
           bodyStyle: bodyStyle || null,
           exteriorColor: exteriorColor || null,
           interiorColor: interiorColor || null,
-          engine: engine || null,
           vin: vin || null,
+          odometer: mileage ? parseInt(mileage) : null,
           msrp: msrp || null,
           buyingPrice: buyingPrice || null,
           hst: hst || null,
@@ -194,7 +196,7 @@ export default function DealEditPage() {
     } finally {
       setSaving(false);
     }
-  }, [deal, id, allFields, jobNumber, vehicleYear, vehicleMake, vehicleModel, vehicleTrim, bodyStyle, exteriorColor, interiorColor, engine, vin, msrp, buyingPrice, hst, sellingPrice, currency, commissionAmount, commissionFor, delivery, warehouseAddress, clientName, clientAddress, clientPhone, clientEmail, notes]);
+  }, [deal, id, allFields, jobNumber, vehicleYear, vehicleMake, vehicleModel, vehicleTrim, bodyStyle, exteriorColor, interiorColor, vin, mileage, msrp, buyingPrice, hst, sellingPrice, currency, commissionAmount, commissionFor, delivery, warehouseAddress, clientName, clientAddress, clientPhone, clientEmail, notes]);
 
   const handleDelete = useCallback(async () => {
     if (!confirm("Delete this deal? This cannot be undone.")) return;
@@ -271,7 +273,6 @@ export default function DealEditPage() {
         <Card>
           <CardHeader><CardTitle className="text-base">Deal Details</CardTitle></CardHeader>
           <CardContent className="space-y-5">
-            {/* Vehicle */}
             <div>
               <h3 className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vehicle</h3>
               <div className="grid grid-cols-4 gap-3">
@@ -287,11 +288,10 @@ export default function DealEditPage() {
               </div>
               <div className="mt-3 grid grid-cols-2 gap-3">
                 <div><Label className="text-xs">VIN</Label><Input value={vin} onChange={(e) => setVin(e.target.value)} className="font-mono" /></div>
-                <div><Label className="text-xs">Engine</Label><Input value={engine} onChange={(e) => setEngine(e.target.value)} /></div>
+                <div><Label className="text-xs">Mileage (km)</Label><Input type="number" value={mileage} onChange={(e) => setMileage(e.target.value)} /></div>
               </div>
             </div>
 
-            {/* Pricing */}
             <div>
               <h3 className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pricing</h3>
               <div className="grid grid-cols-4 gap-3">
@@ -302,7 +302,7 @@ export default function DealEditPage() {
                   <Label className="text-xs">Currency</Label>
                   <select value={currency} onChange={(e) => setCurrency(e.target.value)}
                     className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
-                    <option value="USD">USD</option><option value="CAD">CAD</option>
+                    <option value="CAD">CAD</option><option value="USD">USD</option>
                   </select>
                 </div>
               </div>
@@ -313,7 +313,6 @@ export default function DealEditPage() {
               </div>
             </div>
 
-            {/* Client */}
             <div>
               <h3 className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Client</h3>
               <div className="grid grid-cols-2 gap-3">
@@ -324,7 +323,6 @@ export default function DealEditPage() {
               </div>
             </div>
 
-            {/* Deal */}
             <div>
               <h3 className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Deal</h3>
               <div className="grid grid-cols-2 gap-3">
@@ -341,7 +339,6 @@ export default function DealEditPage() {
               </div>
             </div>
 
-            {/* Buttons */}
             <div className="flex justify-center gap-3 pt-2">
               <Button size="lg" onClick={() => setShowPreview(true)}>Preview Email</Button>
               <Button size="lg" variant="outline" onClick={handleSave} disabled={saving} className="gap-2">

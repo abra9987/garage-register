@@ -12,7 +12,7 @@ EXTRACTION RULES:
 6. HST: the HST (Harmonized Sales Tax) amount from the invoice. If not explicitly labeled as HST, look for tax line items. May not be present on all invoices.
 7. Currency: detect from the invoice — "USD" or "CAD". Look at currency symbols, labels, or country of origin.
 8. For client info: extract the SELLER/VENDOR who ISSUED the invoice (NOT the "Bill To" or "Ship To" which is AD Auto Export). The client is the company at the top of the invoice, the one sending it. Extract their name, address, phone, and email.
-9. Vehicle description: extract year, make, model, trim/package level, exterior color, interior color, engine/drivetrain info.
+9. Vehicle description: extract year, make, model, trim/package level, exterior color, interior color.
 10. Body style: extract the body style (e.g., "Sedan", "SUV", "Convertible", "Coupe", "Truck") from the window sticker.
 11. This may be a scanned document — use vision to read the content.`;
 
@@ -31,7 +31,6 @@ Vehicle (from Window Sticker):
 - body_style: Body style (e.g., "Sedan", "SUV", "Convertible", "Coupe", "Truck", "Hatchback")
 - exterior_color: Exterior color name
 - interior_color: Interior color name
-- engine: Engine description (e.g., "3.0L I6 Turbo", "5.0L V8")
 - vin: Vehicle Identification Number (exactly 17 characters)
 - msrp: Total MSRP in dollars (number, no currency symbol)
 
@@ -61,7 +60,6 @@ export const DEAL_EXTRACTION_JSON_SCHEMA = {
       body_style: { anyOf: [{ type: "string" }, { type: "null" }] },
       exterior_color: { anyOf: [{ type: "string" }, { type: "null" }] },
       interior_color: { anyOf: [{ type: "string" }, { type: "null" }] },
-      engine: { anyOf: [{ type: "string" }, { type: "null" }] },
       vin: { type: "string" },
       msrp: { anyOf: [{ type: "number" }, { type: "null" }] },
       buying_price: { anyOf: [{ type: "number" }, { type: "null" }] },
@@ -82,7 +80,6 @@ export const DEAL_EXTRACTION_JSON_SCHEMA = {
       "body_style",
       "exterior_color",
       "interior_color",
-      "engine",
       "vin",
       "msrp",
       "buying_price",

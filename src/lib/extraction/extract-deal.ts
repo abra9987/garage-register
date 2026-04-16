@@ -17,7 +17,6 @@ export interface DealExtractionResult {
   body_style: string | null;
   exterior_color: string | null;
   interior_color: string | null;
-  engine: string | null;
   vin: string | null;
   msrp: number | null;
   buying_price: number | null;

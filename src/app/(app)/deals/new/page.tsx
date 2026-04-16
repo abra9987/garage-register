@@ -41,6 +41,8 @@ function genSubject(f: Record<string, string>): string {
 function genBody(f: Record<string, string>): string {
   const cur = f.currency || "USD";
   const lines: string[] = [];
+  if (f.mileage) lines.push(`${Number(f.mileage).toLocaleString()} km`);
+  lines.push("");
   if (f.msrp) lines.push(`${fmtPrice(f.msrp, cur)} MSRP`);
   if (f.buyingPrice) lines.push(`${fmtPrice(f.buyingPrice, cur)} BUYING PRICE`);
   if (f.hst) lines.push(`${fmtPrice(f.hst, cur)} HST`);
@@ -81,8 +83,8 @@ export default function NewDealPage() {
   const [bodyStyle, setBodyStyle] = useState("");
   const [exteriorColor, setExteriorColor] = useState("");
   const [interiorColor, setInteriorColor] = useState("");
-  const [engine, setEngine] = useState("");
   const [vin, setVin] = useState("");
+  const [mileage, setMileage] = useState("");
   const [msrp, setMsrp] = useState("");
   const [buyingPrice, setBuyingPrice] = useState("");
   const [hst, setHst] = useState("");
@@ -94,7 +96,7 @@ export default function NewDealPage() {
   // Manual-only fields
   const [jobNumber, setJobNumber] = useState("");
   const [sellingPrice, setSellingPrice] = useState("");
-  const [currency, setCurrency] = useState("USD");
+  const [currency, setCurrency] = useState("CAD");
   const [commissionAmount, setCommissionAmount] = useState("");
   const [commissionFor, setCommissionFor] = useState("");
   const [delivery, setDelivery] = useState("");
@@ -104,7 +106,7 @@ export default function NewDealPage() {
 
   const allFields: Record<string, string> = {
     jobNumber, vehicleYear, vehicleMake, vehicleModel, vehicleTrim, bodyStyle,
-    exteriorColor, interiorColor, engine, vin, msrp, buyingPrice, hst,
+    exteriorColor, interiorColor, vin, mileage, msrp, buyingPrice, hst,
     sellingPrice, currency, commissionAmount, commissionFor, delivery,
     warehouseAddress, clientName, notes,
   };
@@ -133,7 +135,7 @@ export default function NewDealPage() {
       setBodyStyle(data.body_style ?? "");
       setExteriorColor(data.exterior_color ?? "");
       setInteriorColor(data.interior_color ?? "");
-      setEngine(data.engine ?? "");
+
       setVin(data.vin ?? "");
       setMsrp(data.msrp?.toString() ?? "");
       setBuyingPrice(data.buying_price?.toString() ?? "");
@@ -175,8 +177,9 @@ export default function NewDealPage() {
           bodyStyle: bodyStyle || null,
           exteriorColor: exteriorColor || null,
           interiorColor: interiorColor || null,
-          engine: engine || null,
+
           vin: vin || null,
+          odometer: mileage ? parseInt(mileage) : null,
           msrp: msrp || null,
           buyingPrice: buyingPrice || null,
           hst: hst || null,
@@ -202,7 +205,7 @@ export default function NewDealPage() {
     } finally {
       setSaving(false);
     }
-  }, [extracted, stickerFiles, invoiceFile, jobNumber, vehicleYear, vehicleMake, vehicleModel, vehicleTrim, bodyStyle, exteriorColor, interiorColor, engine, vin, msrp, buyingPrice, hst, sellingPrice, currency, commissionAmount, commissionFor, delivery, warehouseAddress, clientName, clientAddress, clientPhone, clientEmail, notes, allFields, router]);
+  }, [extracted, stickerFiles, invoiceFile, jobNumber, vehicleYear, vehicleMake, vehicleModel, vehicleTrim, bodyStyle, exteriorColor, interiorColor, vin, msrp, buyingPrice, hst, sellingPrice, currency, commissionAmount, commissionFor, delivery, warehouseAddress, clientName, clientAddress, clientPhone, clientEmail, notes, allFields, router]);
 
   const subject = extracted && showPreview ? genSubject(allFields) : null;
   const body = extracted && showPreview ? genBody(allFields) : null;
@@ -210,7 +213,7 @@ export default function NewDealPage() {
   const handleReset = useCallback(() => {
     setStickerFiles([]); setInvoiceFile(null); setExtracted(false); setShowPreview(false);
     setVehicleYear(""); setVehicleMake(""); setVehicleModel(""); setVehicleTrim("");
-    setBodyStyle(""); setExteriorColor(""); setInteriorColor(""); setEngine("");
+    setBodyStyle(""); setExteriorColor(""); setInteriorColor(""); setMileage("");
     setVin(""); setMsrp(""); setBuyingPrice(""); setHst("");
     setClientName(""); setClientAddress(""); setClientPhone(""); setClientEmail("");
     setJobNumber(""); setSellingPrice(""); setCurrency("USD");
@@ -315,8 +318,8 @@ export default function NewDealPage() {
                     <Input value={vin} onChange={(e) => setVin(e.target.value)} className="font-mono" />
                   </div>
                   <div>
-                    <Label className="text-xs">Engine</Label>
-                    <Input value={engine} onChange={(e) => setEngine(e.target.value)} />
+                    <Label className="text-xs">Mileage (km)</Label>
+                    <Input type="number" value={mileage} onChange={(e) => setMileage(e.target.value)} />
                   </div>
                 </div>
               </div>
@@ -341,8 +344,8 @@ export default function NewDealPage() {
                     <Label className="text-xs">Currency</Label>
                     <select value={currency} onChange={(e) => setCurrency(e.target.value)}
                       className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
-                      <option value="USD">USD</option>
                       <option value="CAD">CAD</option>
+                      <option value="USD">USD</option>
                     </select>
                   </div>
                 </div>
