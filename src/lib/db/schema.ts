@@ -152,6 +152,77 @@ export const documents = pgTable("documents", {
   extractionRaw: jsonb("extraction_raw"),
 });
 
+// ---- Deal Filing ----
+
+export const dealStatusEnum = pgEnum("deal_status", ["draft", "sent"]);
+
+export const dealDocTypeEnum = pgEnum("deal_doc_type", [
+  "window_sticker",
+  "invoice",
+]);
+
+export const deals = pgTable("deals", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  jobNumber: varchar("job_number", { length: 20 }),
+  // Vehicle (extracted)
+  vehicleYear: integer("vehicle_year"),
+  vehicleMake: varchar("vehicle_make", { length: 100 }),
+  vehicleModel: varchar("vehicle_model", { length: 100 }),
+  vehicleTrim: varchar("vehicle_trim", { length: 100 }),
+  bodyStyle: varchar("body_style", { length: 50 }),
+  exteriorColor: varchar("exterior_color", { length: 100 }),
+  interiorColor: varchar("interior_color", { length: 100 }),
+  engine: varchar("engine", { length: 200 }),
+  vin: varchar("vin", { length: 17 }),
+  // Pricing
+  msrp: numeric("msrp", { precision: 12, scale: 2 }),
+  buyingPrice: numeric("buying_price", { precision: 12, scale: 2 }),
+  hst: numeric("hst", { precision: 12, scale: 2 }),
+  sellingPrice: numeric("selling_price", { precision: 12, scale: 2 }),
+  currency: varchar("currency", { length: 3 }).default("USD"),
+  // Commission
+  commissionAmount: numeric("commission_amount", { precision: 12, scale: 2 }),
+  commissionFor: varchar("commission_for", { length: 100 }),
+  // Delivery
+  deliveryDestination: varchar("delivery_destination", { length: 200 }),
+  warehouseAddress: text("warehouse_address"),
+  // Client
+  clientName: varchar("client_name", { length: 255 }),
+  clientAddress: text("client_address"),
+  clientPhone: varchar("client_phone", { length: 50 }),
+  clientEmail: varchar("client_email", { length: 255 }),
+  // Notes & email
+  notes: text("notes"),
+  emailSubject: text("email_subject"),
+  emailBody: text("email_body"),
+  // Meta
+  status: dealStatusEnum("status").default("draft").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id),
+});
+
+export const dealDocuments = pgTable("deal_documents", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  dealId: uuid("deal_id")
+    .references(() => deals.id)
+    .notNull(),
+  docType: dealDocTypeEnum("doc_type").notNull(),
+  filename: varchar("filename", { length: 255 }).notNull(),
+  fileData: bytea("file_data").notNull(),
+  mimeType: varchar("mime_type", { length: 100 }),
+  fileSize: integer("file_size").notNull(),
+  uploadedAt: timestamp("uploaded_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
 // ---- Audit Log (D-10: append-only) ----
 
 export const auditLog = pgTable("audit_log", {

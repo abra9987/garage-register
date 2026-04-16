@@ -3,10 +3,12 @@
 import { useRouter, usePathname } from "next/navigation";
 import { useSession, signOut } from "@/lib/auth-client";
 import {
-  LayoutDashboard,
-  Upload,
-  Table2,
-  Download,
+  // LayoutDashboard,
+  // Upload,
+  // Table2,
+  // Download,
+  FileText,
+  List,
   LogOut,
 } from "lucide-react";
 import {
@@ -24,11 +26,17 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 
+// Garage Register nav — disabled for now
+// const garageRegisterItems = [
+//   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+//   { title: "New Vehicle", href: "/upload", icon: Upload },
+//   { title: "Register", href: "/register", icon: Table2 },
+//   { title: "Export", href: "/export", icon: Download },
+// ];
+
 const navItems = [
-  { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { title: "New Vehicle", href: "/upload", icon: Upload },
-  { title: "Register", href: "/register", icon: Table2 },
-  { title: "Export", href: "/export", icon: Download },
+  { title: "New Deal", href: "/deals/new", icon: FileText },
+  { title: "Deals", href: "/deals", icon: List },
 ];
 
 export function AppSidebar() {
@@ -48,7 +56,7 @@ export function AppSidebar() {
           <h2 className="text-base font-semibold tracking-tight">
             AD Auto Export
           </h2>
-          <p className="text-xs text-muted-foreground">Garage Register</p>
+          <p className="text-xs text-muted-foreground">Deal Filing</p>
         </div>
       </SidebarHeader>
 

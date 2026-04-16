@@ -8,6 +8,13 @@
       "when": 1775752331285,
       "tag": "0000_burly_chimera",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1776305429555,
+      "tag": "0001_smart_lightspeed",
+      "breakpoints": true
     }
   ]
 }
