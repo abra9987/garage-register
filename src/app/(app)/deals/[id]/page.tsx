@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { EmailPreview } from "@/components/deals/email-preview";
+import { EmailPreviewDialog } from "@/components/deals/email-preview";
 
 interface DocMeta {
   id: string;
@@ -350,12 +350,12 @@ export default function DealEditPage() {
         </Card>
       </div>
 
-      {subject && body && (
-        <Card>
-          <CardHeader><CardTitle className="text-base">Email Preview</CardTitle></CardHeader>
-          <CardContent><EmailPreview subject={subject} body={body} /></CardContent>
-        </Card>
-      )}
+      <EmailPreviewDialog
+        open={showPreview}
+        onOpenChange={setShowPreview}
+        subject={genSubject(allFields)}
+        body={genBody(allFields)}
+      />
     </div>
   );
 }

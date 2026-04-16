@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropZone } from "@/components/upload/drop-zone";
 import { MultiDropZone } from "@/components/deals/multi-drop-zone";
-import { EmailPreview } from "@/components/deals/email-preview";
+import { EmailPreviewDialog } from "@/components/deals/email-preview";
 
 function fmtPrice(value: string, cur: string): string {
   const n = parseFloat(value);
@@ -424,13 +424,13 @@ export default function NewDealPage() {
         </div>
       )}
 
-      {/* Email Preview */}
-      {subject && body && (
-        <Card>
-          <CardHeader><CardTitle className="text-base">Email Preview</CardTitle></CardHeader>
-          <CardContent><EmailPreview subject={subject} body={body} /></CardContent>
-        </Card>
-      )}
+      {/* Email Preview Dialog */}
+      <EmailPreviewDialog
+        open={showPreview && !!extracted}
+        onOpenChange={setShowPreview}
+        subject={genSubject(allFields)}
+        body={genBody(allFields)}
+      />
     </div>
   );
 }
