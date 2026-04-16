@@ -412,7 +412,7 @@ export default function DealEditPage() {
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div><Label className="text-xs">Job Number</Label><Input placeholder="26-J07674" value={jobNumber} onChange={(e) => setJobNumber(e.target.value)} /></div>
+                <div><Label className="text-xs">Job Number</Label><Input value={jobNumber} readOnly className="bg-muted" /></div>
                 <div>
                   <Label className="text-xs">Delivery To</Label>
                   <WarehouseAutocomplete
