@@ -74,5 +74,46 @@ export async function register() {
         console.warn("[seed] Could not seed admin user (will retry on next restart):", error instanceof Error ? error.message : error);
       }
     }
+
+    // Seed Denis user (deal filing)
+    try {
+      const denisEmail = "dinis.k@adauto.ca";
+      const denisPassword = process.env.DENIS_PASSWORD;
+      if (denisPassword) {
+        const existingDenis = await db.select({ id: user.id }).from(user).where(eq(user.email, denisEmail));
+        if (existingDenis.length > 0) {
+          const hashedPw = await hashPassword(denisPassword);
+          const { and } = await import("drizzle-orm");
+          await db.update(account).set({ password: hashedPw, updatedAt: new Date() })
+            .where(and(eq(account.userId, existingDenis[0].id), eq(account.providerId, "credential")));
+          console.log(`[seed] Denis user exists, password updated`);
+        } else {
+          const now = new Date();
+          const denisId = crypto.randomUUID();
+          const hashedPw = await hashPassword(denisPassword);
+          await db.insert(user).values({
+            id: denisId,
+            name: "Dinis Khayrutdinov",
+            email: denisEmail,
+            emailVerified: false,
+            createdAt: now,
+            updatedAt: now,
+            role: "user",
+          });
+          await db.insert(account).values({
+            id: crypto.randomUUID(),
+            accountId: denisId,
+            providerId: "credential",
+            userId: denisId,
+            password: hashedPw,
+            createdAt: now,
+            updatedAt: now,
+          });
+          console.log(`[seed] Denis user created: ${denisEmail}`);
+        }
+      }
+    } catch (error) {
+      console.warn("[seed] Could not seed Denis user:", error instanceof Error ? error.message : error);
+    }
   }
 }
