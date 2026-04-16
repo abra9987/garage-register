@@ -14,6 +14,8 @@ import { MultiDropZone } from "@/components/deals/multi-drop-zone";
 import { EmailPreviewDialog } from "@/components/deals/email-preview";
 import { ClientAutocomplete } from "@/components/deals/client-autocomplete";
 import { ClientManager } from "@/components/deals/client-manager";
+import { WarehouseAutocomplete } from "@/components/deals/warehouse-autocomplete";
+import { WarehouseManager } from "@/components/deals/warehouse-manager";
 
 function fmtPrice(value: string, cur: string): string {
   const n = parseFloat(value);
@@ -42,14 +44,15 @@ function genSubject(f: Record<string, string>): string {
 }
 
 function genBody(f: Record<string, string>): string {
-  const cur = f.currency || "CAD";
+  const buyCur = f.currency || "CAD";
+  const sellCur = f.sellingCurrency || "USD";
   const lines: string[] = [];
-  if (f.msrp) lines.push(`${fmtPrice(f.msrp, cur)} MSRP`);
-  if (f.buyingPrice) lines.push(`${fmtPrice(f.buyingPrice, cur)} BUYING PRICE`);
-  if (f.hst) lines.push(`${fmtPrice(f.hst, cur)} HST`);
-  if (f.sellingPrice) lines.push(`${fmtPrice(f.sellingPrice, cur)} Selling price`);
+  if (f.msrp) lines.push(`${fmtPrice(f.msrp, buyCur)} MSRP`);
+  if (f.buyingPrice) lines.push(`${fmtPrice(f.buyingPrice, buyCur)} BUYING PRICE`);
+  if (f.hst) lines.push(`${fmtPrice(f.hst, buyCur)} HST`);
+  if (f.sellingPrice) lines.push(`${fmtPrice(f.sellingPrice, sellCur)} Selling price`);
   if (f.commissionAmount && f.commissionFor)
-    lines.push(`${fmtPrice(f.commissionAmount, cur)} for ${f.commissionFor} (included)`);
+    lines.push(`${fmtPrice(f.commissionAmount, sellCur)} for ${f.commissionFor} (included)`);
   if (f.delivery) {
     lines.push("");
     lines.push(`DELIVERY TO ${f.delivery.toUpperCase()}`);
@@ -106,6 +109,7 @@ export default function NewDealPage() {
   const [jobNumber, setJobNumber] = useState("");
   const [sellingPrice, setSellingPrice] = useState("");
   const [currency, setCurrency] = useState("CAD");
+  const [sellingCurrency, setSellingCurrency] = useState("USD");
   const [commissionAmount, setCommissionAmount] = useState("");
   const [commissionFor, setCommissionFor] = useState("");
   const [delivery, setDelivery] = useState("");
@@ -113,10 +117,12 @@ export default function NewDealPage() {
   const [notes, setNotes] = useState("");
   const [showPreview, setShowPreview] = useState(false);
 
+  const [warehouseFromDb, setWarehouseFromDb] = useState(false);
+
   const allFields: Record<string, string> = {
     jobNumber, vehicleYear, vehicleMake, vehicleModel, vehicleTrim, bodyStyle,
     exteriorColor, interiorColor, vin, mileage, msrp, buyingPrice, hst,
-    sellingPrice, currency, commissionAmount, commissionFor, delivery,
+    sellingPrice, currency, sellingCurrency, commissionAmount, commissionFor, delivery,
     warehouseAddress, clientName, clientAddress, clientPhone, clientEmail, notes,
   };
 
@@ -191,6 +197,7 @@ export default function NewDealPage() {
           hst: hst || null,
           sellingPrice: sellingPrice || null,
           currency,
+          sellingCurrency,
           commissionAmount: commissionAmount || null,
           commissionFor: commissionFor || null,
           deliveryDestination: delivery || null,
@@ -222,8 +229,9 @@ export default function NewDealPage() {
     setBodyStyle(""); setExteriorColor(""); setInteriorColor(""); setMileage("");
     setVin(""); setMsrp(""); setBuyingPrice(""); setHst("");
     setClientName(""); setClientAddress(""); setClientPhone(""); setClientEmail(""); setClientFromDb(false);
-    setJobNumber(""); setSellingPrice(""); setCurrency("USD");
+    setJobNumber(""); setSellingPrice(""); setCurrency("CAD"); setSellingCurrency("USD");
     setCommissionAmount(""); setCommissionFor(""); setDelivery(""); setWarehouseAddress(""); setNotes("");
+    setWarehouseFromDb(false);
   }, []);
 
   return (
@@ -347,7 +355,7 @@ export default function NewDealPage() {
                     <Input type="number" value={hst} onChange={(e) => setHst(e.target.value)} />
                   </div>
                   <div>
-                    <Label className="text-xs">Currency</Label>
+                    <Label className="text-xs">Buy Currency</Label>
                     <select value={currency} onChange={(e) => setCurrency(e.target.value)}
                       className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
                       <option value="CAD">CAD</option>
@@ -355,10 +363,18 @@ export default function NewDealPage() {
                     </select>
                   </div>
                 </div>
-                <div className="mt-3 grid grid-cols-3 gap-3">
+                <div className="mt-3 grid grid-cols-4 gap-3">
                   <div>
                     <Label className="text-xs">Selling Price</Label>
                     <Input type="number" value={sellingPrice} onChange={(e) => setSellingPrice(e.target.value)} />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Sell Currency</Label>
+                    <select value={sellingCurrency} onChange={(e) => setSellingCurrency(e.target.value)}
+                      className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                      <option value="USD">USD</option>
+                      <option value="CAD">CAD</option>
+                    </select>
                   </div>
                   <div>
                     <Label className="text-xs">Commission ($)</Label>
@@ -445,7 +461,16 @@ export default function NewDealPage() {
 
               {/* Deal details */}
               <div>
-                <h3 className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Deal</h3>
+                <div className="mb-2 flex items-center justify-between">
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Deal</h3>
+                  <WarehouseManager
+                    onSelect={(w) => {
+                      setDelivery(w.name);
+                      if (w.address) setWarehouseAddress(w.address);
+                      setWarehouseFromDb(true);
+                    }}
+                  />
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label className="text-xs">Job Number</Label>
@@ -453,13 +478,48 @@ export default function NewDealPage() {
                   </div>
                   <div>
                     <Label className="text-xs">Delivery To</Label>
-                    <Input placeholder="City" value={delivery} onChange={(e) => setDelivery(e.target.value)} />
+                    <WarehouseAutocomplete
+                      value={delivery}
+                      onChange={(v) => { setDelivery(v); setWarehouseFromDb(false); }}
+                      onSelect={(w) => {
+                        if (w.address) setWarehouseAddress(w.address);
+                        setWarehouseFromDb(true);
+                      }}
+                      placeholder="City or warehouse name"
+                    />
                   </div>
                 </div>
                 <div className="mt-3">
                   <Label className="text-xs">Warehouse Address</Label>
                   <Input placeholder="Full address" value={warehouseAddress} onChange={(e) => setWarehouseAddress(e.target.value)} />
                 </div>
+                {delivery && !warehouseFromDb && (
+                  <Button
+                    type="button"
+                    variant="link"
+                    size="sm"
+                    className="mt-2 h-auto p-0 text-xs"
+                    onClick={async () => {
+                      try {
+                        const res = await fetch("/api/warehouses", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            name: delivery,
+                            address: warehouseAddress || null,
+                          }),
+                        });
+                        if (!res.ok) throw new Error();
+                        setWarehouseFromDb(true);
+                        toast.success("Warehouse saved");
+                      } catch {
+                        toast.error("Failed to save warehouse");
+                      }
+                    }}
+                  >
+                    + Save as new warehouse
+                  </Button>
+                )}
                 <div className="mt-3">
                   <Label className="text-xs">Notes</Label>
                   <Textarea placeholder="Additional notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />

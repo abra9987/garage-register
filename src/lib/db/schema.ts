@@ -168,6 +168,20 @@ export const clients = pgTable("clients", {
     .notNull(),
 });
 
+// ---- Warehouses ----
+
+export const warehouses = pgTable("warehouses", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  address: text("address"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
 // ---- Deal Filing ----
 
 export const dealStatusEnum = pgEnum("deal_status", ["draft", "sent"]);
@@ -197,6 +211,7 @@ export const deals = pgTable("deals", {
   hst: numeric("hst", { precision: 12, scale: 2 }),
   sellingPrice: numeric("selling_price", { precision: 12, scale: 2 }),
   currency: varchar("currency", { length: 3 }).default("USD"),
+  sellingCurrency: varchar("selling_currency", { length: 3 }).default("USD"),
   // Commission
   commissionAmount: numeric("commission_amount", { precision: 12, scale: 2 }),
   commissionFor: varchar("commission_for", { length: 100 }),

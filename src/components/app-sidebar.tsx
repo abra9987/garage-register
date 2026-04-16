@@ -10,6 +10,7 @@ import {
   FileText,
   List,
   Users,
+  Warehouse,
   LogOut,
 } from "lucide-react";
 import {
@@ -39,6 +40,7 @@ const navItems = [
   { title: "New Deal", href: "/deals/new", icon: FileText },
   { title: "Deals", href: "/deals", icon: List },
   { title: "Clients", href: "/clients", icon: Users },
+  { title: "Warehouses", href: "/warehouses", icon: Warehouse },
 ];
 
 export function AppSidebar() {
