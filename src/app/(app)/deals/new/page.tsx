@@ -66,7 +66,11 @@ function genBody(f: Record<string, string>): string {
     if (f.clientPhone) lines.push(f.clientPhone);
     if (f.clientEmail) lines.push(f.clientEmail);
   }
-  if (f.notes) { lines.push(""); lines.push(f.notes); }
+  if (f.notes) {
+    lines.push("");
+    lines.push("Notes:");
+    lines.push(f.notes);
+  }
   return lines.join("\n");
 }
 
