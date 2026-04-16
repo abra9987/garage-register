@@ -13,134 +13,56 @@ import { DropZone } from "@/components/upload/drop-zone";
 import { MultiDropZone } from "@/components/deals/multi-drop-zone";
 import { EmailPreview } from "@/components/deals/email-preview";
 
-interface ExtractedData {
-  vehicle_year: number | null;
-  vehicle_make: string | null;
-  vehicle_model: string | null;
-  vehicle_trim: string | null;
-  body_style: string | null;
-  exterior_color: string | null;
-  interior_color: string | null;
-  engine: string | null;
-  vin: string | null;
-  msrp: number | null;
-  buying_price: number | null;
-  hst: number | null;
-  currency: string | null;
-  invoice_number: string | null;
-  invoice_date: string | null;
-  client_name: string | null;
-  client_address: string | null;
-  client_phone: string | null;
-  client_email: string | null;
-}
-
-function formatPrice(value: number | null, cur: string): string {
-  if (value === null) return "";
+function fmtPrice(value: string, cur: string): string {
+  const n = parseFloat(value);
+  if (!value || isNaN(n)) return "";
   const formatted = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-    minimumFractionDigits: value % 1 === 0 ? 0 : 2,
+    minimumFractionDigits: n % 1 === 0 ? 0 : 2,
     maximumFractionDigits: 2,
-  }).format(value);
+  }).format(n);
   return `${formatted} ${cur}`;
 }
 
-function generateSubject(data: ExtractedData, jobNumber: string): string {
+function genSubject(f: Record<string, string>): string {
   const parts: string[] = [];
-  if (jobNumber) parts.push(jobNumber);
-
-  const vehicleDesc = [
-    data.vehicle_year,
-    data.vehicle_make,
-    data.vehicle_model,
-    data.vehicle_trim,
-    data.body_style,
-  ]
-    .filter(Boolean)
-    .join(" ");
-  if (vehicleDesc) parts.push(vehicleDesc);
-
-  const colors = [
-    data.exterior_color,
-    data.interior_color ? `on ${data.interior_color.toLowerCase()}` : null,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  if (f.jobNumber) parts.push(f.jobNumber);
+  const desc = [f.vehicleYear, f.vehicleMake, f.vehicleModel, f.vehicleTrim, f.bodyStyle]
+    .filter(Boolean).join(" ");
+  if (desc) parts.push(desc);
+  const colors = [f.exteriorColor, f.interiorColor ? `on ${f.interiorColor.toLowerCase()}` : ""]
+    .filter(Boolean).join(" ");
   if (colors) parts.push(colors);
-
-  if (data.vin) parts.push(`VIN ${data.vin}`);
-
+  if (f.vin) parts.push(`VIN ${f.vin}`);
   return parts.join(", ");
 }
 
-function generateBody(
-  data: ExtractedData,
-  manual: {
-    sellingPrice: string;
-    currency: string;
-    commissionAmount: string;
-    commissionFor: string;
-    delivery: string;
-    warehouseAddress: string;
-    notes: string;
-  },
-): string {
-  const cur = manual.currency;
+function genBody(f: Record<string, string>): string {
+  const cur = f.currency || "USD";
   const lines: string[] = [];
-
-  if (data.msrp !== null) lines.push(`${formatPrice(data.msrp, cur)} MSRP`);
-  if (data.buying_price !== null)
-    lines.push(`${formatPrice(data.buying_price, cur)} BUYING PRICE`);
-  if (data.hst !== null) lines.push(`${formatPrice(data.hst, cur)} HST`);
-  if (manual.sellingPrice) {
-    const sp = parseFloat(manual.sellingPrice);
-    if (!isNaN(sp)) lines.push(`${formatPrice(sp, cur)} Selling price`);
-  }
-  if (manual.commissionAmount && manual.commissionFor) {
-    const ca = parseFloat(manual.commissionAmount);
-    if (!isNaN(ca))
-      lines.push(`${formatPrice(ca, cur)} for ${manual.commissionFor}`);
-  }
-
-  if (manual.delivery) {
+  if (f.msrp) lines.push(`${fmtPrice(f.msrp, cur)} MSRP`);
+  if (f.buyingPrice) lines.push(`${fmtPrice(f.buyingPrice, cur)} BUYING PRICE`);
+  if (f.hst) lines.push(`${fmtPrice(f.hst, cur)} HST`);
+  if (f.sellingPrice) lines.push(`${fmtPrice(f.sellingPrice, cur)} Selling price`);
+  if (f.commissionAmount && f.commissionFor)
+    lines.push(`${fmtPrice(f.commissionAmount, cur)} for ${f.commissionFor}`);
+  if (f.delivery) {
     lines.push("");
-    lines.push(`DELIVERY TO ${manual.delivery.toUpperCase()}`);
-    if (manual.warehouseAddress) lines.push(manual.warehouseAddress);
+    lines.push(`DELIVERY TO ${f.delivery.toUpperCase()}`);
+    if (f.warehouseAddress) lines.push(f.warehouseAddress);
   }
-
-  if (data.client_name) {
-    lines.push("");
-    lines.push(data.client_name);
-  }
-
-  if (manual.notes) lines.push(manual.notes);
-
+  if (f.clientName) { lines.push(""); lines.push(f.clientName); }
+  if (f.notes) lines.push(f.notes);
   return lines.join("\n");
 }
 
 function DocPreview({ file }: { file: File }) {
   const url = URL.createObjectURL(file);
-  const isImage = file.type.startsWith("image/");
-
-  if (isImage) {
-    return (
-      <img
-        src={url}
-        alt={file.name}
-        className="w-full rounded border object-contain max-h-[400px]"
-        onLoad={() => URL.revokeObjectURL(url)}
-      />
-    );
+  if (file.type.startsWith("image/")) {
+    return <img src={url} alt={file.name} className="w-full rounded border object-contain max-h-[400px]" onLoad={() => URL.revokeObjectURL(url)} />;
   }
-  // PDF — use iframe
-  return (
-    <iframe
-      src={url}
-      title={file.name}
-      className="h-[500px] w-full rounded border"
-    />
-  );
+  return <iframe src={url} title={file.name} className="h-[500px] w-full rounded border" />;
 }
 
 export default function NewDealPage() {
@@ -149,8 +71,27 @@ export default function NewDealPage() {
   const [invoiceFile, setInvoiceFile] = useState<File | null>(null);
   const [extracting, setExtracting] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [extracted, setExtracted] = useState<ExtractedData | null>(null);
+  const [extracted, setExtracted] = useState(false); // just a flag
 
+  // All fields — editable, pre-filled from extraction
+  const [vehicleYear, setVehicleYear] = useState("");
+  const [vehicleMake, setVehicleMake] = useState("");
+  const [vehicleModel, setVehicleModel] = useState("");
+  const [vehicleTrim, setVehicleTrim] = useState("");
+  const [bodyStyle, setBodyStyle] = useState("");
+  const [exteriorColor, setExteriorColor] = useState("");
+  const [interiorColor, setInteriorColor] = useState("");
+  const [engine, setEngine] = useState("");
+  const [vin, setVin] = useState("");
+  const [msrp, setMsrp] = useState("");
+  const [buyingPrice, setBuyingPrice] = useState("");
+  const [hst, setHst] = useState("");
+  const [clientName, setClientName] = useState("");
+  const [clientAddress, setClientAddress] = useState("");
+  const [clientPhone, setClientPhone] = useState("");
+  const [clientEmail, setClientEmail] = useState("");
+
+  // Manual-only fields
   const [jobNumber, setJobNumber] = useState("");
   const [sellingPrice, setSellingPrice] = useState("");
   const [currency, setCurrency] = useState("USD");
@@ -159,44 +100,53 @@ export default function NewDealPage() {
   const [delivery, setDelivery] = useState("");
   const [warehouseAddress, setWarehouseAddress] = useState("");
   const [notes, setNotes] = useState("");
-
   const [showPreview, setShowPreview] = useState(false);
+
+  const allFields: Record<string, string> = {
+    jobNumber, vehicleYear, vehicleMake, vehicleModel, vehicleTrim, bodyStyle,
+    exteriorColor, interiorColor, engine, vin, msrp, buyingPrice, hst,
+    sellingPrice, currency, commissionAmount, commissionFor, delivery,
+    warehouseAddress, clientName, notes,
+  };
 
   const handleExtract = useCallback(async () => {
     if (stickerFiles.length === 0 || !invoiceFile) {
       toast.error("Upload Window Sticker and Invoice");
       return;
     }
-
     setExtracting(true);
-    setExtracted(null);
+    setExtracted(false);
     setShowPreview(false);
-
     try {
       const formData = new FormData();
-      for (const f of stickerFiles) {
-        formData.append("windowSticker", f);
-      }
+      for (const f of stickerFiles) formData.append("windowSticker", f);
       formData.append("invoice", invoiceFile);
+      const res = await fetch("/api/deals/extract", { method: "POST", body: formData });
+      if (!res.ok) { const err = await res.json(); throw new Error(err.error || "Extraction failed"); }
+      const { data } = await res.json();
 
-      const res = await fetch("/api/deals/extract", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Extraction failed");
-      }
-
-      const { data } = (await res.json()) as { data: ExtractedData };
-      setExtracted(data);
+      // Pre-fill all fields from extraction
+      setVehicleYear(data.vehicle_year?.toString() ?? "");
+      setVehicleMake(data.vehicle_make ?? "");
+      setVehicleModel(data.vehicle_model ?? "");
+      setVehicleTrim(data.vehicle_trim ?? "");
+      setBodyStyle(data.body_style ?? "");
+      setExteriorColor(data.exterior_color ?? "");
+      setInteriorColor(data.interior_color ?? "");
+      setEngine(data.engine ?? "");
+      setVin(data.vin ?? "");
+      setMsrp(data.msrp?.toString() ?? "");
+      setBuyingPrice(data.buying_price?.toString() ?? "");
+      setHst(data.hst?.toString() ?? "");
+      setClientName(data.client_name ?? "");
+      setClientAddress(data.client_address ?? "");
+      setClientPhone(data.client_phone ?? "");
+      setClientEmail(data.client_email ?? "");
       if (data.currency) setCurrency(data.currency);
+      setExtracted(true);
       toast.success("Data extracted");
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Extraction failed",
-      );
+      toast.error(error instanceof Error ? error.message : "Extraction failed");
     } finally {
       setExtracting(false);
     }
@@ -204,121 +154,67 @@ export default function NewDealPage() {
 
   const handleSave = useCallback(async () => {
     if (!extracted) return;
-
-    const subj = generateSubject(extracted, jobNumber);
-    const bod = generateBody(extracted, {
-      sellingPrice,
-      currency,
-      commissionAmount,
-      commissionFor,
-      delivery,
-      warehouseAddress,
-      notes,
-    });
-
     setSaving(true);
     try {
-      // 1. Create deal with files
       const formData = new FormData();
-      for (const f of stickerFiles) {
-        formData.append("windowSticker", f);
-      }
+      for (const f of stickerFiles) formData.append("windowSticker", f);
       if (invoiceFile) formData.append("invoice", invoiceFile);
-
-      const createRes = await fetch("/api/deals", {
-        method: "POST",
-        body: formData,
-      });
+      const createRes = await fetch("/api/deals", { method: "POST", body: formData });
       if (!createRes.ok) throw new Error("Failed to create deal");
       const { data: { id } } = await createRes.json();
 
-      // 2. Update deal with extracted + manual data
-      const updateRes = await fetch(`/api/deals/${id}`, {
+      await fetch(`/api/deals/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           jobNumber: jobNumber || null,
-          vehicleYear: extracted.vehicle_year,
-          vehicleMake: extracted.vehicle_make,
-          vehicleModel: extracted.vehicle_model,
-          vehicleTrim: extracted.vehicle_trim,
-          bodyStyle: extracted.body_style,
-          exteriorColor: extracted.exterior_color,
-          interiorColor: extracted.interior_color,
-          engine: extracted.engine,
-          vin: extracted.vin,
-          msrp: extracted.msrp?.toString() ?? null,
-          buyingPrice: extracted.buying_price?.toString() ?? null,
-          hst: extracted.hst?.toString() ?? null,
+          vehicleYear: vehicleYear ? parseInt(vehicleYear) : null,
+          vehicleMake: vehicleMake || null,
+          vehicleModel: vehicleModel || null,
+          vehicleTrim: vehicleTrim || null,
+          bodyStyle: bodyStyle || null,
+          exteriorColor: exteriorColor || null,
+          interiorColor: interiorColor || null,
+          engine: engine || null,
+          vin: vin || null,
+          msrp: msrp || null,
+          buyingPrice: buyingPrice || null,
+          hst: hst || null,
           sellingPrice: sellingPrice || null,
           currency,
           commissionAmount: commissionAmount || null,
           commissionFor: commissionFor || null,
           deliveryDestination: delivery || null,
           warehouseAddress: warehouseAddress || null,
-          clientName: extracted.client_name,
-          clientAddress: extracted.client_address,
-          clientPhone: extracted.client_phone,
-          clientEmail: extracted.client_email,
+          clientName: clientName || null,
+          clientAddress: clientAddress || null,
+          clientPhone: clientPhone || null,
+          clientEmail: clientEmail || null,
           notes: notes || null,
-          emailSubject: subj,
-          emailBody: bod,
+          emailSubject: genSubject(allFields),
+          emailBody: genBody(allFields),
         }),
       });
-      if (!updateRes.ok) throw new Error("Failed to save deal");
-
       toast.success("Deal saved");
       router.push("/deals");
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to save",
-      );
+      toast.error(error instanceof Error ? error.message : "Failed to save");
     } finally {
       setSaving(false);
     }
-  }, [
-    extracted,
-    jobNumber,
-    sellingPrice,
-    currency,
-    commissionAmount,
-    commissionFor,
-    delivery,
-    warehouseAddress,
-    notes,
-    stickerFiles,
-    invoiceFile,
-    router,
-  ]);
+  }, [extracted, stickerFiles, invoiceFile, jobNumber, vehicleYear, vehicleMake, vehicleModel, vehicleTrim, bodyStyle, exteriorColor, interiorColor, engine, vin, msrp, buyingPrice, hst, sellingPrice, currency, commissionAmount, commissionFor, delivery, warehouseAddress, clientName, clientAddress, clientPhone, clientEmail, notes, allFields, router]);
 
-  const subject =
-    extracted && showPreview ? generateSubject(extracted, jobNumber) : null;
-  const body =
-    extracted && showPreview
-      ? generateBody(extracted, {
-          sellingPrice,
-          currency,
-          commissionAmount,
-          commissionFor,
-          delivery,
-          warehouseAddress,
-          notes,
-        })
-      : null;
+  const subject = extracted && showPreview ? genSubject(allFields) : null;
+  const body = extracted && showPreview ? genBody(allFields) : null;
 
   const handleReset = useCallback(() => {
-    setStickerFiles([]);
-    setInvoiceFile(null);
-    setExtracted(null);
-    setShowPreview(false);
-    setJobNumber("");
-    setSellingPrice("");
-    setCurrency("USD");
-    setCommissionAmount("");
-    setCommissionFor("");
-    setDelivery("");
-    setWarehouseAddress("");
-    setNotes("");
+    setStickerFiles([]); setInvoiceFile(null); setExtracted(false); setShowPreview(false);
+    setVehicleYear(""); setVehicleMake(""); setVehicleModel(""); setVehicleTrim("");
+    setBodyStyle(""); setExteriorColor(""); setInteriorColor(""); setEngine("");
+    setVin(""); setMsrp(""); setBuyingPrice(""); setHst("");
+    setClientName(""); setClientAddress(""); setClientPhone(""); setClientEmail("");
+    setJobNumber(""); setSellingPrice(""); setCurrency("USD");
+    setCommissionAmount(""); setCommissionFor(""); setDelivery(""); setWarehouseAddress(""); setNotes("");
   }, []);
 
   return (
@@ -326,54 +222,26 @@ export default function NewDealPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">New Deal</h1>
-          <p className="text-sm text-muted-foreground">
-            Upload documents, extract data, generate email for Andrey
-          </p>
+          <p className="text-sm text-muted-foreground">Upload documents, extract data, generate email for Andrey</p>
         </div>
-        {extracted && (
-          <Button variant="outline" onClick={handleReset}>
-            Start Over
-          </Button>
-        )}
+        {extracted && <Button variant="outline" onClick={handleReset}>Start Over</Button>}
       </div>
 
       {/* Upload */}
       <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Documents</CardTitle>
-        </CardHeader>
+        <CardHeader><CardTitle className="text-base">Documents</CardTitle></CardHeader>
         <CardContent>
           <div className="flex gap-4">
-            <MultiDropZone
-              label="Window Sticker"
-              files={stickerFiles}
-              maxFiles={3}
-              onAdd={(newFiles) =>
-                setStickerFiles((prev) => [...prev, ...newFiles])
-              }
-              onRemove={(i) =>
-                setStickerFiles((prev) => prev.filter((_, idx) => idx !== i))
-              }
-              disabled={extracting}
-            />
-            <DropZone
-              label="AP Invoice"
-              ariaLabel="Upload AP Invoice PDF"
-              file={invoiceFile}
-              onDrop={setInvoiceFile}
-              onRemove={() => setInvoiceFile(null)}
-              disabled={extracting}
-            />
+            <MultiDropZone label="Window Sticker" files={stickerFiles} maxFiles={3}
+              onAdd={(f) => setStickerFiles((p) => [...p, ...f])}
+              onRemove={(i) => setStickerFiles((p) => p.filter((_, idx) => idx !== i))}
+              disabled={extracting} />
+            <DropZone label="AP Invoice" ariaLabel="Upload AP Invoice PDF" file={invoiceFile}
+              onDrop={setInvoiceFile} onRemove={() => setInvoiceFile(null)} disabled={extracting} />
           </div>
-
           {stickerFiles.length > 0 && invoiceFile && !extracted && (
             <div className="mt-4 flex justify-center">
-              <Button
-                onClick={handleExtract}
-                disabled={extracting}
-                size="lg"
-                className="gap-2"
-              >
+              <Button onClick={handleExtract} disabled={extracting} size="lg" className="gap-2">
                 {extracting && <Loader2 className="size-4 animate-spin" />}
                 {extracting ? "Extracting..." : "Extract Data"}
               </Button>
@@ -382,255 +250,169 @@ export default function NewDealPage() {
         </CardContent>
       </Card>
 
-      {/* Review: Documents + Form side by side */}
+      {/* Form: Documents + Editable fields side by side */}
       {extracted && (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {/* Left: Document previews */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Documents</CardTitle>
-            </CardHeader>
+            <CardHeader><CardTitle className="text-base">Documents</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               {stickerFiles.map((f, i) => (
                 <div key={`sticker-${i}`}>
-                  <p className="mb-1 text-xs font-medium text-muted-foreground">
-                    Window Sticker {stickerFiles.length > 1 ? i + 1 : ""}
-                  </p>
+                  <p className="mb-1 text-xs font-medium text-muted-foreground">Window Sticker {stickerFiles.length > 1 ? i + 1 : ""}</p>
                   <DocPreview file={f} />
                 </div>
               ))}
               {invoiceFile && (
                 <div>
-                  <p className="mb-1 text-xs font-medium text-muted-foreground">
-                    AP Invoice
-                  </p>
+                  <p className="mb-1 text-xs font-medium text-muted-foreground">AP Invoice</p>
                   <DocPreview file={invoiceFile} />
                 </div>
               )}
             </CardContent>
           </Card>
 
-          {/* Right: Extracted data + manual fields */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Deal Details</CardTitle>
-            </CardHeader>
+            <CardHeader><CardTitle className="text-base">Deal Details</CardTitle></CardHeader>
             <CardContent className="space-y-5">
               {/* Vehicle */}
               <div>
-                <h3 className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Vehicle
-                </h3>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                <h3 className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vehicle</h3>
+                <div className="grid grid-cols-4 gap-3">
                   <div>
-                    <span className="text-muted-foreground">Description: </span>
-                    <span className="font-medium">
-                      {[
-                        extracted.vehicle_year,
-                        extracted.vehicle_make,
-                        extracted.vehicle_model,
-                        extracted.vehicle_trim,
-                        extracted.body_style,
-                      ]
-                        .filter(Boolean)
-                        .join(" ") || "—"}
-                    </span>
+                    <Label className="text-xs">Year</Label>
+                    <Input value={vehicleYear} onChange={(e) => setVehicleYear(e.target.value)} />
                   </div>
                   <div>
-                    <span className="text-muted-foreground">VIN: </span>
-                    <span className="font-mono font-medium">
-                      {extracted.vin || "—"}
-                    </span>
+                    <Label className="text-xs">Make</Label>
+                    <Input value={vehicleMake} onChange={(e) => setVehicleMake(e.target.value)} />
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Colors: </span>
-                    <span>
-                      {[extracted.exterior_color, extracted.interior_color]
-                        .filter(Boolean)
-                        .join(" on ") || "—"}
-                    </span>
+                    <Label className="text-xs">Model</Label>
+                    <Input value={vehicleModel} onChange={(e) => setVehicleModel(e.target.value)} />
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Engine: </span>
-                    <span>{extracted.engine || "—"}</span>
+                    <Label className="text-xs">Trim</Label>
+                    <Input value={vehicleTrim} onChange={(e) => setVehicleTrim(e.target.value)} />
+                  </div>
+                </div>
+                <div className="mt-3 grid grid-cols-3 gap-3">
+                  <div>
+                    <Label className="text-xs">Body Style</Label>
+                    <Input value={bodyStyle} onChange={(e) => setBodyStyle(e.target.value)} />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Ext. Color</Label>
+                    <Input value={exteriorColor} onChange={(e) => setExteriorColor(e.target.value)} />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Int. Color</Label>
+                    <Input value={interiorColor} onChange={(e) => setInteriorColor(e.target.value)} />
+                  </div>
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs">VIN</Label>
+                    <Input value={vin} onChange={(e) => setVin(e.target.value)} className="font-mono" />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Engine</Label>
+                    <Input value={engine} onChange={(e) => setEngine(e.target.value)} />
                   </div>
                 </div>
               </div>
 
               {/* Pricing */}
               <div>
-                <h3 className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Pricing
-                </h3>
-                <div className="grid grid-cols-3 gap-2 text-sm">
+                <h3 className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pricing</h3>
+                <div className="grid grid-cols-4 gap-3">
                   <div>
-                    <span className="text-muted-foreground">MSRP: </span>
-                    <span className="font-medium">
-                      {extracted.msrp !== null
-                        ? formatPrice(extracted.msrp, currency)
-                        : "—"}
-                    </span>
+                    <Label className="text-xs">MSRP</Label>
+                    <Input type="number" value={msrp} onChange={(e) => setMsrp(e.target.value)} />
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Buying: </span>
-                    <span className="font-medium">
-                      {extracted.buying_price !== null
-                        ? formatPrice(extracted.buying_price, currency)
-                        : "—"}
-                    </span>
+                    <Label className="text-xs">Buying Price</Label>
+                    <Input type="number" value={buyingPrice} onChange={(e) => setBuyingPrice(e.target.value)} />
                   </div>
                   <div>
-                    <span className="text-muted-foreground">HST: </span>
-                    <span className="font-medium">
-                      {extracted.hst !== null
-                        ? formatPrice(extracted.hst, currency)
-                        : "—"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Client */}
-              {extracted.client_name && (
-                <div>
-                  <h3 className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    Client
-                  </h3>
-                  <p className="text-sm font-medium">
-                    {extracted.client_name}
-                  </p>
-                  {extracted.client_address && (
-                    <p className="text-sm text-muted-foreground">
-                      {extracted.client_address}
-                    </p>
-                  )}
-                </div>
-              )}
-
-              {/* Manual fields */}
-              <div>
-                <h3 className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Deal Terms
-                </h3>
-                <div className="grid grid-cols-3 gap-3">
-                  <div>
-                    <Label htmlFor="jobNumber" className="text-xs">
-                      Job Number
-                    </Label>
-                    <Input
-                      id="jobNumber"
-                      placeholder="26-J07674"
-                      value={jobNumber}
-                      onChange={(e) => setJobNumber(e.target.value)}
-                    />
+                    <Label className="text-xs">HST</Label>
+                    <Input type="number" value={hst} onChange={(e) => setHst(e.target.value)} />
                   </div>
                   <div>
-                    <Label htmlFor="sellingPrice" className="text-xs">
-                      Selling Price
-                    </Label>
-                    <Input
-                      id="sellingPrice"
-                      type="number"
-                      placeholder="99500"
-                      value={sellingPrice}
-                      onChange={(e) => setSellingPrice(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="currency" className="text-xs">
-                      Currency
-                    </Label>
-                    <select
-                      id="currency"
-                      value={currency}
-                      onChange={(e) => setCurrency(e.target.value)}
-                      className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                    >
+                    <Label className="text-xs">Currency</Label>
+                    <select value={currency} onChange={(e) => setCurrency(e.target.value)}
+                      className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
                       <option value="USD">USD</option>
                       <option value="CAD">CAD</option>
                     </select>
                   </div>
                 </div>
-                <div className="mt-3 grid grid-cols-2 gap-3">
+                <div className="mt-3 grid grid-cols-3 gap-3">
                   <div>
-                    <Label htmlFor="commissionAmount" className="text-xs">
-                      Commission ($)
-                    </Label>
-                    <Input
-                      id="commissionAmount"
-                      type="number"
-                      placeholder="1000"
-                      value={commissionAmount}
-                      onChange={(e) => setCommissionAmount(e.target.value)}
-                    />
+                    <Label className="text-xs">Selling Price</Label>
+                    <Input type="number" value={sellingPrice} onChange={(e) => setSellingPrice(e.target.value)} />
                   </div>
                   <div>
-                    <Label htmlFor="commissionFor" className="text-xs">
-                      Commission For
-                    </Label>
-                    <Input
-                      id="commissionFor"
-                      placeholder="Name"
-                      value={commissionFor}
-                      onChange={(e) => setCommissionFor(e.target.value)}
-                    />
+                    <Label className="text-xs">Commission ($)</Label>
+                    <Input type="number" value={commissionAmount} onChange={(e) => setCommissionAmount(e.target.value)} />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Commission For</Label>
+                    <Input placeholder="Name" value={commissionFor} onChange={(e) => setCommissionFor(e.target.value)} />
                   </div>
                 </div>
-                <div className="mt-3 grid grid-cols-2 gap-3">
+              </div>
+
+              {/* Client */}
+              <div>
+                <h3 className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Client</h3>
+                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <Label htmlFor="delivery" className="text-xs">
-                      Delivery To
-                    </Label>
-                    <Input
-                      id="delivery"
-                      placeholder="City"
-                      value={delivery}
-                      onChange={(e) => setDelivery(e.target.value)}
-                    />
+                    <Label className="text-xs">Name</Label>
+                    <Input value={clientName} onChange={(e) => setClientName(e.target.value)} />
                   </div>
                   <div>
-                    <Label htmlFor="warehouseAddress" className="text-xs">
-                      Warehouse Address
-                    </Label>
-                    <Input
-                      id="warehouseAddress"
-                      placeholder="Full address"
-                      value={warehouseAddress}
-                      onChange={(e) => setWarehouseAddress(e.target.value)}
-                    />
+                    <Label className="text-xs">Address</Label>
+                    <Input value={clientAddress} onChange={(e) => setClientAddress(e.target.value)} />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Phone</Label>
+                    <Input value={clientPhone} onChange={(e) => setClientPhone(e.target.value)} />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Email</Label>
+                    <Input value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Deal details */}
+              <div>
+                <h3 className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Deal</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs">Job Number</Label>
+                    <Input placeholder="26-J07674" value={jobNumber} onChange={(e) => setJobNumber(e.target.value)} />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Delivery To</Label>
+                    <Input placeholder="City" value={delivery} onChange={(e) => setDelivery(e.target.value)} />
                   </div>
                 </div>
                 <div className="mt-3">
-                  <Label htmlFor="notes" className="text-xs">
-                    Notes
-                  </Label>
-                  <Textarea
-                    id="notes"
-                    placeholder="Additional notes"
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    rows={2}
-                  />
+                  <Label className="text-xs">Warehouse Address</Label>
+                  <Input placeholder="Full address" value={warehouseAddress} onChange={(e) => setWarehouseAddress(e.target.value)} />
+                </div>
+                <div className="mt-3">
+                  <Label className="text-xs">Notes</Label>
+                  <Textarea placeholder="Additional notes" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
                 </div>
               </div>
 
               {/* Buttons */}
               <div className="flex justify-center gap-3 pt-2">
-                <Button size="lg" onClick={() => setShowPreview(true)}>
-                  Preview Email
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="gap-2"
-                >
-                  {saving ? (
-                    <Loader2 className="size-4 animate-spin" />
-                  ) : (
-                    <Save className="size-4" />
-                  )}
+                <Button size="lg" onClick={() => setShowPreview(true)}>Preview Email</Button>
+                <Button size="lg" variant="outline" onClick={handleSave} disabled={saving} className="gap-2">
+                  {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
                   Save Draft
                 </Button>
               </div>
@@ -642,12 +424,8 @@ export default function NewDealPage() {
       {/* Email Preview */}
       {subject && body && (
         <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Email Preview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <EmailPreview subject={subject} body={body} />
-          </CardContent>
+          <CardHeader><CardTitle className="text-base">Email Preview</CardTitle></CardHeader>
+          <CardContent><EmailPreview subject={subject} body={body} /></CardContent>
         </Card>
       )}
     </div>
